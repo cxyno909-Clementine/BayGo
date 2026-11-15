@@ -277,6 +277,7 @@ main section + section { margin-top: 24px; }
 .directory-entry > div { flex: 1 1 150px; }
 .directory-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 14px;
 }
@@ -287,7 +288,15 @@ main section + section { margin-top: 24px; }
   height: 90px;
   border-radius: 12px;
 }
-.directory-card-body { min-width: 0; flex: 1; }
+.directory-card-body { min-width: 0; flex: 1 1 0%; }
+.directory-card > .photo-unavailable {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  order: 1;
+  margin: 0;
+}
 .directory-card-body > * + * { margin-top: 4px; }
 .directory-photo .travel-photo { aspect-ratio: 4 / 3; }
 .place-map { display: grid; gap: 8px; }
