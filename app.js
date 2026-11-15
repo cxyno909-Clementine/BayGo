@@ -476,7 +476,7 @@ function directoryCard(item) {
   return `<article class="card directory-card">
     ${directoryPhoto(item)}
     <div class="directory-card-body"><p class="eyebrow">${esc(item.category)} · ${esc(item.city)}</p>
-    <h3>${esc(item.name)}</h3><p class="meta">${esc(item.city)}</p>${placePriceBrief(item)}
+    <h3>${esc(item.name)}</h3><p class="meta">${esc(item.city)}</p>${item.photo?.referenceNote ? `<p class="meta">${esc(item.photo.referenceNote)}</p>` : ''}${placePriceBrief(item)}
     ${link('E04', 'View Place', { id: item.id }, 'text')}</div>
   </article>`;
 }
