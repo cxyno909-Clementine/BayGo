@@ -1,0 +1,59 @@
+[
+  {
+    "placeId": "PL-ZH-017",
+    "kind": "admission",
+    "amount": 0,
+    "currency": "CNY",
+    "unit": "person",
+    "scope": "General museum admission",
+    "conditions": "General admission is free. Check the museum's current arrangements for exhibitions and visits. Shopping, food and transport are not included.",
+    "sourceName": "Zhuhai Museum official announcement",
+    "sourceUrl": "https://www.zhmuseum.org.cn/home/xinxixinwenInfo?id=996",
+    "sourcePublishedOn": "2026-09-20",
+    "sourceCheckedOn": "2026-11-15",
+    "status": "official_reference"
+  },
+  {
+    "placeId": "PL-GZ-008",
+    "kind": "admission",
+    "amount": 0,
+    "currency": "CNY",
+    "unit": "person",
+    "scope": "General exhibitions",
+    "conditions": "General exhibitions are free. Some special exhibitions charge separately; check the selected exhibition and the official reservation channel. Transport and purchases are not included.",
+    "sourceName": "Guangdong Museum official admission statement",
+    "sourceUrl": "https://www.gdmuseum.org.cn/cn/col51/1366",
+    "sourcePublishedOn": "2022-03-28",
+    "sourceCheckedOn": "2026-11-15",
+    "status": "official_reference"
+  },
+  {
+    "placeId": "PL-GZ-018",
+    "kind": "admission",
+    "amount": 5,
+    "currency": "CNY",
+    "unit": "person",
+    "scope": "Baiyun Mountain general gate admission",
+    "conditions": "General mountain entry only. Yuntai Garden, Moxingling, cable cars and sightseeing vehicles are separately priced. The current map pin is an area reference near Yuntai Garden; confirm the intended entrance before travelling.",
+    "sourceName": "Baiyun Mountain official ticket information",
+    "sourceUrl": "https://www.baiyunshan.com.cn/bys/jqzn/jqzn.shtml",
+    "sourcePublishedOn": null,
+    "sourceCheckedOn": "2026-11-15",
+    "status": "official_reference"
+  },
+  {
+    "placeId": "PL-HK-008",
+    "kind": "admission",
+    "amount": 190,
+    "currency": "HKD",
+    "unit": "person",
+    "scope": "Standard M+ admission ticket",
+    "concessions": [{"label": "Eligible full-time students", "amount": 100, "conditions": "Check concession eligibility and required proof with M+ before purchasing."}],
+    "conditions": "Certain public spaces are free to access. Events or cinema screenings may require separate tickets; check the selected exhibition and date. Student concessions are not automatically applied to cost subtotals.",
+    "sourceName": "M+ official visitor and ticket information",
+    "sourceUrl": "https://www.mplus.org.hk/en/plan-your-visit/",
+    "sourcePublishedOn": null,
+    "sourceCheckedOn": "2026-11-15",
+    "status": "official_reference"
+  }
+]

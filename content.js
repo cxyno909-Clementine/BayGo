@@ -1,4 +1,3 @@
-// Snapshot of BayGo Content - Greater Bay Area.xlsx. Route cost columns contain transport estimates only.
 window.BAYGO_CONTENT = {
   "routes": [
     {
@@ -493,14 +492,14 @@ window.BAYGO_CONTENT = {
       "title_en": "Tsim Sha Tsui Harbour Walk",
       "interest_tags": "Waterfront; Photography",
       "start_and_end": "BNBU round trip",
-      "outbound_en": "Travel from BNBU to the HZMB Zhuhai Port. Take the Zhuhai–Hong Kong HZMB Shuttle Bus (金巴). After completing border checks, take a Citybus A21 service that serves the Hong Kong Port toward Hung Hom and get off in Tsim Sha Tsui.",
+      "outbound_en": "Travel from BNBU to the HZMB Zhuhai Port. Take the Zhuhai–Hong Kong HZMB Shuttle Bus (金巴). After completing border checks, take B6 to Tung Chung and use the MTR journey planner for Tsim Sha Tsui / East Tsim Sha Tsui. Check current interchange and walking instructions.",
       "visit_en": "Walk from the Clock Tower (尖沙咀鐘樓) along the Tsim Sha Tsui Promenade to the Avenue of Stars (星光大道).",
-      "return_en": "Take a Hong Kong Port-serving A21 in the airport direction, alight at the HZMB Hong Kong Port, then take the Zhuhai shuttle and return to BNBU.",
-      "fare_note_en": "Published adult daytime examples: shuttle CNY 58 out and HKD 65 back; A21 HKD 34.60 published one-way fare. Check the fare for each boarding; Zhuhai access is separate.",
+      "return_en": "Use the MTR back to Tung Chung and B6 towards HZMB Hong Kong Port; confirm the last usable connections. Take the Zhuhai-bound shuttle and arrange the final connection to BNBU.",
+      "fare_note_en": "Published adult daytime shuttle references: CNY 58 from Zhuhai and HKD 65 from Hong Kong. B6, MTR and Zhuhai access are additional; check the current fare for each leg.",
       "time_note_en": "Day trip preview. Total time depends on traffic, shuttle connections and border queues.",
-      "verification_note_en": "Check entry requirements for your own travel documents and confirm that both A21 departures serve the bridge port.",
+      "verification_note_en": "Check your travel documents, the B6 stop and MTR connections. See Life → Intercity Travel & Tickets for official booking and connection sources.",
       "source_ids": "SRC-24; SRC-25; SRC-26; SRC-27",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-15",
       "status": "Preview"
     }
   ],
@@ -651,21 +650,21 @@ window.BAYGO_CONTENT = {
     },
     {
       "source_id": "SRC-25",
-      "Source": "Hong Kong Transport Department | Bridge port access",
-      "What it supports": "A21 serves Tsim Sha Tsui and published fare",
-      "source_url": "https://www.td.gov.hk/sc/transport_in_hong_kong/land_based_cross_boundary_transport/access_to_hzmb_hong_kong_port/index.html",
-      "Checked on": "2026-11-10",
+      "Source": "Hong Kong Government | HZMB local public transport",
+      "What it supports": "B6 to Tung Chung and B5 to Sunny Bay as port-to-MTR connections",
+      "source_url": "https://www.hzmb.gov.hk/sc/local-public.html",
+      "Checked on": "2026-11-15",
       "Method": "Public web research",
-      "Conditions and status": "Official port transport information"
+      "Conditions and status": "Local connections require separate tickets and current service checks"
     },
     {
       "source_id": "SRC-26",
-      "Source": "Citybus | Cross-boundary connections",
-      "What it supports": "A21 route via HZMB Hong Kong Port",
-      "source_url": "https://www.citybus.com.hk/content/default.aspx?intLangID=2&page=crossBoarderServices&section=routes",
-      "Checked on": "2026-11-10",
+      "Source": "MTR | Network and station maps",
+      "What it supports": "MTR connections after reaching Tung Chung",
+      "source_url": "https://www.mtr.com.hk/en/customer/services/system_map.html",
+      "Checked on": "2026-11-15",
       "Method": "Public web research",
-      "Conditions and status": "Confirm the chosen departure serves the port"
+      "Conditions and status": "Use the current journey planner for the actual station pair"
     },
     {
       "source_id": "SRC-27",
@@ -771,10 +770,10 @@ window.BAYGO_CONTENT = {
     },
     {
       "content_id": "CP-HK-001",
-      "action_label_en": "Check A21 bridge-port service",
+      "action_label_en": "Check bridge-port bus and MTR connections",
       "action_type": "external_link",
-      "value": "https://www.citybus.com.hk/content/default.aspx?intLangID=2&page=crossBoarderServices&section=routes",
-      "purpose_en": "Check the A21 connection from the Hong Kong Port to Tsim Sha Tsui."
+      "value": "https://www.hzmb.gov.hk/sc/local-public.html",
+      "purpose_en": "Check B6 towards Tung Chung or B5 towards Sunny Bay, then plan the MTR connection."
     }
   ]
 };

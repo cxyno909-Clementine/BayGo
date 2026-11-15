@@ -1,0 +1,523 @@
+{
+  "reviewedOn": "2026-11-15",
+  "mode": "supplied_snapshots",
+  "placeCount": 85,
+  "foodReferenceCount": 7,
+  "officialReferenceCount": 4,
+  "sourceSha256": {
+    "amap-verified-results.json": "3d957603a77a0f66121b100650fe9c92f8a2b9c01f0191e720fd7eb2e148dee5",
+    "amap-review-results.json": "4b478afc39b7ddaa6a7ffb34aff58238f88d72227a4cec28b1cba357ea50b0ce"
+  },
+  "places": [
+    {
+      "placeId": "P-ZH-002",
+      "name": "Bugu Cafe",
+      "foodPriceImported": true,
+      "reason": null
+    },
+    {
+      "placeId": "PL-ZH-002",
+      "name": "Yu Ji Hong Kong Café · Shanfang Road",
+      "foodPriceImported": true,
+      "reason": null
+    },
+    {
+      "placeId": "PL-ZH-003",
+      "name": "Zhan Ji Ginger Pork Trotters",
+      "foodPriceImported": false,
+      "reason": "exact verified POI required"
+    },
+    {
+      "placeId": "PL-ZH-004",
+      "name": "Juanwu Sushi",
+      "foodPriceImported": false,
+      "reason": "exact verified POI required"
+    },
+    {
+      "placeId": "PL-ZH-005",
+      "name": "Tangjia Tea Cakes",
+      "foodPriceImported": true,
+      "reason": null
+    },
+    {
+      "placeId": "PL-ZH-006",
+      "name": "Mingda Hong Kong Café",
+      "foodPriceImported": true,
+      "reason": null
+    },
+    {
+      "placeId": "PL-ZH-007",
+      "name": "Qi’ao Wood-fired Bakery",
+      "foodPriceImported": true,
+      "reason": null
+    },
+    {
+      "placeId": "PL-ZH-008",
+      "name": "Tang Ma Dessert Shop",
+      "foodPriceImported": true,
+      "reason": null
+    },
+    {
+      "placeId": "PL-ZH-009",
+      "name": "Axi Xiangqi Fish Noodles",
+      "foodPriceImported": true,
+      "reason": null
+    },
+    {
+      "placeId": "PL-ZH-010",
+      "name": "Zhuhai High-Tech Powerlong Plaza",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-011",
+      "name": "Zhuhai Utopa Mall",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-012",
+      "name": "Zhuhai Huafa Mall",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-013",
+      "name": "Zhuhai Opera House",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-014",
+      "name": "Huafa Grand Theatre",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "P-ZH-004",
+      "name": "Zhuhai Seaside Park",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "P-ZH-005",
+      "name": "Zhuhai Fisher Girl",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-017",
+      "name": "Zhuhai Museum",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-018",
+      "name": "New Yuanming Palace",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-019",
+      "name": "Rossini Watch Museum",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-020",
+      "name": "Tangjia Old Town · Shanfang Road",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-001",
+      "name": "TaiKoo Hui Guangzhou",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-002",
+      "name": "Grandview Mall",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-003",
+      "name": "Tianhe Teemall",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-004",
+      "name": "Baoneng Guangzhou International Sports and Performing Arts Center",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-005",
+      "name": "Guangzhou Gymnasium",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-006",
+      "name": "Guangzhou Opera House",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-007",
+      "name": "Tianhe Sports Center",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-008",
+      "name": "Guangdong Museum",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-009",
+      "name": "Yongqing Fang",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-010",
+      "name": "Canton Tower",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-001",
+      "name": "Futian COCO Park",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-002",
+      "name": "Coastal City",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-003",
+      "name": "Shenzhen Bay MixC",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-004",
+      "name": "Uniwalk",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-005",
+      "name": "Shenzhen Bay Sports Center",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-006",
+      "name": "Shenzhen Universiade Sports Centre",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-007",
+      "name": "Shenzhen Sports Center",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-008",
+      "name": "Shenzhen Concert Hall",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-009",
+      "name": "Lianhuashan Park",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-010",
+      "name": "Shenzhen Bay Park",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-001",
+      "name": "Kai Tak Mall",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-002",
+      "name": "Harbour City",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-003",
+      "name": "K11 MUSEA",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-004",
+      "name": "Kai Tak Stadium",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-005",
+      "name": "Hong Kong Coliseum",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-006",
+      "name": "AsiaWorld-Expo",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-007",
+      "name": "Hong Kong Cultural Centre",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-008",
+      "name": "M+",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-009",
+      "name": "PMQ",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-010",
+      "name": "Tsim Sha Tsui Promenade",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-001",
+      "name": "Shoppes at Venetian",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-002",
+      "name": "Shoppes at Parisian",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-003",
+      "name": "The Promenade Shops",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-004",
+      "name": "Galaxy Arena",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-005",
+      "name": "The Venetian Arena",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-006",
+      "name": "Studio City Event Center",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-007",
+      "name": "Macao Cultural Centre",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-008",
+      "name": "Senado Square",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-009",
+      "name": "Ruins of St. Paul’s",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-010",
+      "name": "Rua do Cunha",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-021",
+      "name": "Fuhuali",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-022",
+      "name": "Zhuhai City Balcony",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-023",
+      "name": "Zhuhai Seaside Swimming Beach",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-ZH-024",
+      "name": "Haitian Park",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-011",
+      "name": "Dongshankou · Miaoqian West Street",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-012",
+      "name": "Chimelong Paradise",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-013",
+      "name": "Beijing Road Cultural Tourism Zone",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-014",
+      "name": "Huacheng Square",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-015",
+      "name": "Chen Clan Ancestral Hall",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-016",
+      "name": "Shamian Island",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-017",
+      "name": "Yuexiu Park",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-018",
+      "name": "Baiyun Mountain · South Gate",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-019",
+      "name": "Guangdong Olympic Sports Center",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-020",
+      "name": "Taigucang Wharf",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-NEW-001",
+      "name": "Shenzhen Talent Park",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-SZ-NEW-002",
+      "name": "Talent Park Book Bar",
+      "foodPriceImported": false,
+      "reason": "exact verified POI required"
+    },
+    {
+      "placeId": "PL-SZ-NEW-003",
+      "name": "Phoenix House · Huaqiangbei",
+      "foodPriceImported": false,
+      "reason": "no positive average-spend value for the exact POI"
+    },
+    {
+      "placeId": "PL-HK-NEW-004",
+      "name": "West Kowloon Art Park",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-NEW-005",
+      "name": "Kai Kai Dessert",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-HK-NEW-006",
+      "name": "Australia Dairy Company",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-NEW-007",
+      "name": "Lou Lim Ieoc Garden",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-NEW-008",
+      "name": "Lord Stow’s Bakery · Coloane",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-MO-NEW-009",
+      "name": "Seng Cheong",
+      "foodPriceImported": false,
+      "reason": "not a mainland food-spend reference"
+    },
+    {
+      "placeId": "PL-GZ-NEW-010",
+      "name": "Nanxin Milk Desserts",
+      "foodPriceImported": false,
+      "reason": "no positive average-spend value for the exact POI"
+    },
+    {
+      "placeId": "PL-GZ-NEW-011",
+      "name": "Yinji Rice Noodle Rolls · Wenchang North Road",
+      "foodPriceImported": false,
+      "reason": "no positive average-spend value for the exact POI"
+    }
+  ]
+}

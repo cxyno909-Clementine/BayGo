@@ -25,7 +25,7 @@ const duration = min => `${Math.floor(min / 60) ? Math.floor(min / 60) + ' hr ' 
 const today = () => new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const minutes = time => { const [hour, minute] = time.split(':').map(Number); return hour * 60 + minute; };
 const clock = min => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
-const titles = { R01:'Recommended Routes', R02:'Route Details', P01:'Start Planning', P02:'Your Multi-stop Plan', H01: 'Home', C01: 'Choose a City', C02: 'Home', E01: 'Plan a Trip', E02: 'Suggested Trips', E03: 'Trip Details', E04: 'Place Details', D01: 'Explore Places', L01: 'Life Guides', L02: 'Guide Details', Q01: 'Community', Q02: 'Buddy Activity', Q03: 'Apply to Join', Q04: 'Student Story', M01: 'Me', M02: 'Saved Items', M03: 'My Applications', A01: 'Sample Sign-in', A02: 'Simulated Campus Verification', F01: 'Report an Issue', I01: 'About BayGo' };
+const titles = { R01:'Recommended Routes', R02:'Route Details', P01:'Start Planning', P02:'Your Multi-stop Plan', H01: 'Home', C01: 'Choose a City', C02: 'Home', E01: 'Plan a Trip', E02: 'Suggested Trips', E03: 'Trip Details', E04: 'Place Details', D01: 'Explore Places', L01: 'Life Guides', L03: 'Intercity Travel & Tickets', L02: 'Guide Details', Q01: 'Community', Q02: 'Buddy Activity', Q03: 'Apply to Join', Q04: 'Student Story', Q05: 'Find or Create', Q06: 'Matching Activities', M04: 'Inbox', M05: 'Conversation', M06: 'My Activities', M01: 'Me', M02: 'Saved Items', M03: 'My Applications', A01: 'Sample Sign-in', A02: 'Simulated Campus Verification', F01: 'Report an Issue', I01: 'About BayGo' };
 const tabs = [['H01','Home','home'],['E01','Explore','compass'],['L01','Life','book'],['Q01','Community','people'],['M01','Me','person']];
 const icons = {
   home: 'M3 10 12 3l9 7v10H3z M9 20v-6h6v6', compass: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M16 8l-2 6-6 2 2-6z',
@@ -476,9 +476,93 @@ function directoryCard(item) {
   return `<article class="card directory-card">
     ${directoryPhoto(item)}
     <div class="directory-card-body"><p class="eyebrow">${esc(item.category)} · ${esc(item.city)}</p>
-    <h3>${esc(item.name)}</h3><p class="meta">${esc(item.city)}</p>
+    <h3>${esc(item.name)}</h3><p class="meta">${esc(item.city)}</p>${placePriceBrief(item)}
     ${link('E04', 'View Place', { id: item.id }, 'text')}</div>
   </article>`;
+}
+
+function priceReferenceRecord(item) {
+  if (!item) return null;
+  const record = window.BAYGO_PRICE_REFERENCES?.records?.[item.id];
+  if (!record || !['average_spend', 'admission'].includes(record.kind)
+    || !Number.isFinite(record.amount) || record.amount < 0 || record.currency !== item.currency) return null;
+  if (record.kind === 'average_spend' && (record.amount === 0 || item.amapPoint?.id !== record.sourcePoiId || item.amapPoint?.reference !== false)) return null;
+  return record;
+}
+
+const priceMoney = (amount, currency) => `${currency} ${new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(amount)}`;
+
+function placePriceText(item) {
+  const record = priceReferenceRecord(item);
+  if (!record) return ['Music & Shows', 'Sports'].includes(item?.category) ? 'Price depends on the event or booking' : 'Price not confirmed';
+  if (record.kind === 'average_spend') return `Average spend: ~${priceMoney(record.amount, record.currency)} / person${record.status === 'historical_reference' ? ' · historical' : ''}`;
+  return record.amount === 0 ? 'Free general admission' : `Standard admission: ${priceMoney(record.amount, record.currency)} / person`;
+}
+
+function placePriceBrief(item) {
+  return `<p class="meta price-brief">${esc(placePriceText(item))}</p>`;
+}
+
+function placePriceDetails(item) {
+  const record = priceReferenceRecord(item);
+  if (!record) {
+    const type = item?.category;
+    const explanation = ['Music & Shows', 'Sports'].includes(type)
+      ? 'Tickets or bookings depend on the event, seat and date. A venue-wide average is not a ticket price.'
+      : ['Restaurants', 'Cafes & Desserts'].includes(type)
+        ? 'A reliable average spend for this exact branch has not been confirmed. Check the current menu before deciding your budget.'
+        : 'No verified admission or spending amount has been recorded. Missing information does not mean free entry.';
+    return `<div class="price-reference"><p><strong>${esc(placePriceText(item))}</strong></p><p class="meta">${esc(explanation)}</p>${item?.mapUrl ? `<p>${external(item.mapUrl, 'Check this place in Amap')}</p>` : ''}</div>`;
+  }
+  const historical = record.status === 'historical_reference';
+  const dates = historical
+    ? `Historical reference; original price lookup date was not recorded. Evidence reviewed ${record.evidenceReviewedOn || 'date not recorded'}.`
+    : `Source checked ${record.sourceCheckedOn || 'date not recorded'}${record.sourcePublishedOn ? '; published ' + record.sourcePublishedOn : ''}.`;
+  const concessions = (record.concessions || []).filter(rate => Number.isFinite(rate.amount) && rate.amount >= 0).map(rate =>
+    `<p><strong>${esc(rate.label)}: ${esc(priceMoney(rate.amount, record.currency))}</strong></p><p class="meta">${esc(rate.conditions)}</p>`).join('');
+  return `<div class="price-reference stack"><p><strong>${esc(placePriceText(item))}</strong></p>
+    <p class="meta">${esc(record.scope)}</p>${concessions}<p class="meta">${esc(record.conditions)}</p>
+    <p class="meta">${esc(dates)}</p><p class="meta">Source: ${external(record.sourceUrl, record.sourceName)}</p>
+    ${record.sourcePoiName ? `<p class="meta">Matched branch: <span lang="zh">${esc(record.sourcePoiName)}</span></p>` : ''}</div>`;
+}
+
+function stopCostReferences(ids) {
+  const groups = {};
+  const missing = [];
+  let known = 0;
+  for (const id of [...new Set(ids)]) {
+    const item = directoryPlaces.find(place => place.id === id);
+    const record = priceReferenceRecord(item);
+    if (!record) { missing.push(id); continue; }
+    known += 1;
+    groups[record.currency] = Math.round(((groups[record.currency] || 0) + record.amount) * 100) / 100;
+  }
+  return { groups, missing, known, total: new Set(ids).size };
+}
+
+function stopCostPanel(ids) {
+  const result = stopCostReferences(ids);
+  return heading('Known stop-cost references', `<div class="card stack">
+    ${Object.entries(result.groups).map(([currency, amount]) => `<p><strong>${esc(priceMoney(amount, currency))}</strong> · subtotal of recorded food averages and standard admission</p>`).join('') || '<p>No reliable stop-cost amounts are available for this selection yet.</p>'}
+    <p class="meta">${result.known} of ${result.total} selected stops have a price reference.${result.missing.length ? ` Costs at ${result.missing.length} ${result.missing.length === 1 ? 'stop are' : 'stops are'} still unconfirmed.` : ''}</p>
+    <p class="meta">This is not a complete trip budget. Transport, unpriced stops, shopping and extras are excluded. Food averages can vary; standard tickets are used without applying concessions. Different currencies are listed separately and are not converted.</p></div>`);
+}
+
+function selectedPlanIds(city = state.city) {
+  return [...new Set(state.customPlans?.[city] || [])].filter(id =>
+    directoryPlaces.some(item => item.id === id && item.city === city));
+}
+
+function planControls(item) {
+  if (!item || item.city !== state.city) return '';
+  const ids = selectedPlanIds();
+  const added = ids.includes(item.id);
+  return `<section class="stack plan-place-actions">
+    ${added ? '<button type="button" class="btn outline" disabled>Added to My Plan</button>'
+      : action('add-plan-stop', 'Add to My Plan', 'primary', `data-id="${esc(item.id)}"`)}
+    ${link(ids.length >= 2 ? 'P02' : 'P01', ids.length >= 2 ? `View My Route (${ids.length} stops)` : 'Continue Choosing Places', {}, 'outline')}
+    <p class="meta">${added ? 'This place is already in your selection. Edit the selected places to change your route.' : 'Add this place once, then choose another stop to build your route.'}</p>
+  </section>`;
 }
 
 const mapPoint = item => {
@@ -538,7 +622,6 @@ function placeDetails() {
   const related = data.routes.filter(route => stopsFor(route.route_id).some(stop => stop.place_id === id));
   const canPlan = related.some(route => stopsFor(route.route_id).slice(1, -1).some(stop => stop.place_id === id));
   const photo = item?.photo;
-  const price = item?.price === '按场次与票档查询' ? 'Check event and ticket tier' : item?.price;
   const hours = item?.hours === '按节目和票面查询' ? 'Check the event listing and ticket' : item?.hours;
   show(`<section class="stack">
     ${photo ? directoryPhoto(item, true) : detailPhoto(placePhotos[id])}
@@ -551,14 +634,13 @@ function placeDetails() {
       ${mapUrl ? `<p>${external(mapUrl, item?.amapPoint ? 'Open location in Amap' : 'Search in Amap')}</p>` : ''}
       ${amapDirections(item, mapUrl)}
     </div>`)}
-    ${heading('Cost and access', rows([['Hours or sessions', esc(hours && !/[\u3400-\u9fff]/.test(hours) && hours !== 'Not confirmed' ? hours : 'Check current opening hours before visiting')],
-      ['Price', esc(price && !/[\u3400-\u9fff]/.test(price) ? price : 'Check current admission or event prices')]])
-      + (item ? '<p class="meta">Confirm current hours, prices and entry rules before travelling.</p>' : ''))}
+    ${heading('Cost and access', rows([['Hours or sessions', esc(hours && !/[\u3400-\u9fff]/.test(hours) && hours !== 'Not confirmed' ? hours : 'Check current opening hours before visiting')]])
+      + placePriceDetails(item) + '<p class="meta">Confirm current hours, prices and entry rules before travelling.</p>')}
     ${travelFromBNBU(id, item?.city || 'Zhuhai')}
     ${visitorActions(id)}
     ${photo ? `<p class="meta">Photo by ${esc(/[\u3400-\u9fff]/.test(photo.author || '') ? 'Wikimedia Commons contributor' : photo.author)} · ${external(photo.page, 'Original photo')} · ${external(photo.licenseUrl, photo.license)}</p>` : ''}
     ${related.length ? heading('Related trips', `<div class="card-list">${related.map(route => routeCard(route)).join('')}</div>`) : ''}
-    ${item && item.city===state.city ? `<section>${action('add-plan-stop','Add to My Plan','primary',`data-id="${id}"`)} ${link('P01','Open My Plan')}</section>` : ''}`);
+    ${planControls(item)}`);
 }
 
 const guideCategory = item => item.category === 'Health' ? 'Healthcare' : item.category;
@@ -569,27 +651,29 @@ function guideCard(item) {
 
 function life() {
   const filters = state.lists.life || {};
-  const categories = ['All', 'Healthcare', 'Documents & Public Services', 'Daily Essentials'];
-  const results = data.guides.filter(item => item.city === state.city && (!filters.category || filters.category === 'All' || guideCategory(item) === filters.category)
+  const categories = ['All', 'Healthcare', 'Documents & Public Services', 'Daily Essentials', 'Intercity Travel'];
+  const results = guidesForCity(state.city).filter(item => (!filters.category || filters.category === 'All' || guideCategory(item) === filters.category)
     && Object.values(item).some(value => String(value).toLowerCase().includes((filters.search || '').trim().toLowerCase())));
-  show(`<section class="stack">${cityButton()}
+  show(`<section class="stack">${cityButton()}${link('L03','Intercity Travel & Tickets',{},'primary')}
     <form id="life-filter" class="fields">${field('search', 'Search guides', input('search', 'search', filters.search, 'placeholder="Search guides"'))}
     ${field('category', 'Category', select('category', categories.map(value => [value, value]), filters.category || 'All'))}
-    <div class="cluster">${submit('Search')}${action('clear-life', 'Clear Filters')}</div></form></section>
-    <section class="card-list">${state.city !== 'Zhuhai' ? notice('Local coverage', 'Full life guides are currently available for Zhuhai only.', action('zhuhai', 'Explore Zhuhai', 'primary'))
-      : results.map(guideCard).join('') || notice('No guides found.', 'Try another keyword or category.')}</section>`, tabbar(), true);
+    <div>${submit('Search')}</div><div class="filter-reset">${action('clear-life', 'Clear Filters', 'reset-link')}<p class="meta">Only resets the search and category.</p></div></form></section>
+    <section class="card-list">${results.map(guideCard).join('') || notice('No guides found.', 'Try another keyword or category. Local public-service guides currently focus on Zhuhai.',link('L03','Browse Intercity Travel',{},'outline'))}</section>`, tabbar(), true);
 }
 
 function guideDetails() {
   const item = lookup(data.guides, 'guide_id', params.get('id'));
   if (!item) return unavailable();
+  if(item.guide_id===permitGuide.guide_id) return permitGuideDetails();
+  const intercity=intercityGuides.find(guide=>guide.guide_id===item.guide_id);
+  if(intercity) return intercityGuideDetails(intercity);
   const location = place(item.location_id);
   const checklist = state.checklist[item.guide_id] || {};
   const steps = item.steps_en.split('\n').map(line => line.replace(/^\d+\.\s*/, ''));
   show(`<section class="stack"><p class="eyebrow">${esc(item.city + ' · ' + guideCategory(item))}</p><h2 class="title">${esc(item.title_en)}</h2></section>
     ${heading('Who This Guide Is For', para(item.audience_en))}
     ${heading('What You Can Do', '<p>Find the booking channel and prepare for a routine outpatient visit.</p>')}
-    ${heading('What to Prepare', `<p>${esc(item.bring_en)}</p><label class="check"><input type="checkbox" data-checklist="${esc(item.guide_id)}" ${checklist.prepared ? 'checked' : ''}>I have reviewed the checklist.</label><p class="meta">Checklist progress is stored on this device only.</p>`)}
+    ${heading('What to Prepare', preparationChecklist(item, checklist))}
     ${heading('Steps', `<ol>${steps.map(step => `<li>${esc(step)}</li>`).join('')}</ol>`)}
     ${heading('Time and Cost', para(item.hours_and_fees_en))}
     ${heading('Where to Go', para(location?.name_en) + para(location?.address) + para(item.transport_en) + link('E04', 'View Place', { id: item.location_id }))}
@@ -598,9 +682,28 @@ function guideDetails() {
     <section>${link('F01', 'Report Outdated Information', { kind: 'guide', id: item.guide_id })}</section>`, toolbar(saveButton('guide', item.guide_id)));
 }
 
+function preparationItems(item) {
+  if(item.guide_id===permitGuide.guide_id) return permitPreparation();
+  if (Array.isArray(item.bring_items_en)) return item.bring_items_en.filter(Boolean);
+  return String(item.bring_en || '').split(/\n+|;\s*|(?<=[.!?])\s+(?=[A-Z])/).map(text => text.trim()).filter(Boolean);
+}
+
+function preparationChecklist(item, checklist) {
+  const items = preparationItems(item);
+  if (!items.length) return '<p class="meta">Preparation requirements are not confirmed. Check the official source.</p>';
+  return `<ul class="preparation-list">${items.map((text, index) => `<li><label class="check">
+    <input type="checkbox" data-checklist="${esc(item.guide_id)}" data-checklist-item="${esc(text)}" ${checklist.items?.[text] ? 'checked' : ''}>
+    <span>${esc(text)}</span></label></li>`).join('')}</ul>
+    <p class="meta">Tick each item as you prepare. Progress is stored on this device only and does not confirm eligibility or completion of the service.</p>`;
+}
+
 function activitySchedule(item) {
   const now = new Date();
   const nowLocal = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Shanghai', dateStyle: 'short', timeStyle: 'short' }).format(now);
+  const application=state.applications[item.activity_id];
+  if(item.authenticity==='SIMULATED' && application?.scheduledStart && application?.scheduledEnd && application.status!=='Withdrawn') {
+    return {starts:application.scheduledStart,ends:application.scheduledEnd,ended:application.scheduledEnd<nowLocal};
+  }
   if (item.authenticity !== 'SIMULATED' || item.ends_local >= nowLocal) return { starts: item.starts_local, ends: item.ends_local, ended: item.ends_local < nowLocal };
   const daysToSaturday = ((6 - new Date(nowLocal.slice(0, 10) + 'T00:00:00Z').getUTCDay() + 6) % 7) + 1;
   const demoDate = new Date(Date.parse(nowLocal.slice(0, 10) + 'T00:00:00Z') + daysToSaturday * 86400000).toISOString().slice(0, 10);
@@ -616,9 +719,9 @@ function activityStatus(item) {
 
 function activityCard(item) {
   const schedule = activitySchedule(item);
-  return `<article class="card">${badge('Sample content')}<h3>${esc(item.title_en)}</h3>
-    <p class="meta">Sample schedule · ${esc(schedule.starts)} · China Standard Time</p>
-    <p>${esc(placeName(item.meeting_place_id))} · ${item.remaining} places left</p><p class="meta">${esc(item.cost_split_en)}</p>
+  return `<article class="card">${badge(localActivity(item) ? 'Your local demo activity' : 'Sample content')}${badge(esc(activityCategory(item)))}<h3>${esc(item.title_en)}</h3>
+    <p class="meta">${localActivity(item) ? 'Local schedule' : 'Sample schedule'} · ${esc(schedule.starts)} · China Standard Time</p>
+    <p>${esc(item.meeting_detail_en || placeName(item.meeting_place_id))} · ${item.remaining} places left · ${esc(item.gender || 'Any')}</p><p class="meta">${esc(item.cost_split_en)}</p>
     <p class="meta">${esc(sampleCopy(item.organizer))} · Campus verification simulated</p>
     ${link('Q02', 'View Activity', { id: item.activity_id }, 'outline')}</article>`;
 }
@@ -640,48 +743,53 @@ function community() {
     ? field('category', 'Category', select('category', ['All', 'Places', 'Food & Services', 'Travel Tips', 'Daily Life'].map(name => [name, name]), f.category || 'All'))
       + field('search', 'Keyword', input('search', 'search', f.search, 'placeholder="Search stories"'))
     : field('date', 'Date', input('date', 'date', f.date))
-      + field('type', 'Type', select('type', [['All', 'All'], ['Outing', 'Outings'], ['Carpool', 'Carpool']], f.type || 'All'));
+      + field('type', 'Type', select('type', [['All', 'All'], ['Outing', 'All outings'], ...activityCategories.map(name => [name, name])], f.type || 'All'));
   const collection = stories
     ? data.stories.filter(item => item.city === filterCity && (!f.category || f.category === 'All' || item.category === f.category)
       && [item.title_en, item.body_en, item.tags_en].join(' ').toLowerCase().includes((f.search || '').trim().toLowerCase()))
-    : data.activities.filter(item => item.city === filterCity && (!f.type || f.type === 'All' || item.type === f.type)
+    : allActivities().filter(item => item.city === filterCity && (!f.type || f.type === 'All' || (f.type === 'Outing' ? item.type === 'Outing' : activityCategory(item) === f.type))
       && (!f.date || activitySchedule(item).starts.startsWith(f.date)));
   show(`<section class="stack">${cityButton()}<div class="segmented" aria-label="Community sections">
     ${link('Q01', 'Find Buddies', { tab: 'buddies' }, 'outline' + (stories ? '' : ' selected'))}${link('Q01', 'Student Stories', { tab: 'stories' }, 'outline' + (stories ? ' selected' : ''))}</div>
+    ${stories ? '' : `<div class="cluster">${link('Q05','Find or Create',{},'primary')}${link('M06','My Activities',{},'outline')}${link('M04',`Inbox (${threadUnread()})`,{},'outline')}</div>`}
     <form id="community-filter" class="fields" data-tab="${tab}"><input type="hidden" name="city" value="${esc(state.city)}"><p>Change city on Home.</p>
-    <div class="pair">${filters}</div><div class="cluster">${submit('Apply Filters')}${action('clear-community', 'Clear Filters')}</div></form>
+    <div class="pair">${filters}</div><div>${submit('Apply Filters')}</div>
+    <div class="filter-reset">${action('clear-community', 'Clear Filters', 'reset-link')}<p class="meta">Only resets the filters in this section.</p></div></form>
     ${params.has('date') ? badge('Date filter · ' + esc(f.date)) : ''}</section>
-    <section class="card-list">${filterCity !== 'Zhuhai' ? notice('Local coverage', 'Community content is currently available for Zhuhai only.', action('zhuhai', 'Explore Zhuhai', 'primary'))
-    : collection.map(stories ? storyCard : activityCard).join('') || notice(stories ? 'No stories found.' : 'No activities found.', 'Try changing your filters.')}</section>`, tabbar(), true);
+    <section class="card-list">${filterCity !== 'Zhuhai' && !collection.length ? notice('Local coverage', 'Community content is currently available for Zhuhai only.', action('zhuhai', 'Explore Zhuhai', 'primary'))
+    : collection.map(stories ? storyCard : activityCard).join('') || notice(stories ? 'No stories found.' : 'No activities found.', 'Try changing your filters.', stories ? '' : link('Q05','Find or Create',{},'primary'))}</section>`, tabbar(), true);
 }
 
 function activityDetails() {
-  const item = lookup(data.activities, 'activity_id', params.get('id'));
+  const item = getActivity(params.get('id'));
   if (!item) return unavailable();
   const schedule = activitySchedule(item);
   const application = state.applications[item.activity_id];
   const status = activityStatus(item);
-  const button = application && application.status !== 'Withdrawn'
+  const button = localActivity(item) ? link('M06','Manage My Activity',{},'primary') : application && application.status !== 'Withdrawn'
     ? link('M03', 'View Application', { id: item.activity_id }, 'primary')
     : status === 'Open for applications' ? action('apply', 'Apply to Join', 'primary') : status === 'Full' ? '<button class="btn primary" disabled>Full</button>' : '';
-  show(`<section class="stack">${badge('Sample content')}<h2 class="title">${esc(item.title_en)}</h2>${badge(status)}
-    <p>${esc(sampleCopy(item.organizer))} · Campus verification simulated</p><p class="meta">Sample schedule · ${esc(schedule.starts)} to ${esc(schedule.ends)} · China Standard Time</p>
+  show(`<section class="stack">${badge(localActivity(item) ? 'Your local demo activity' : 'Sample content')}${badge(esc(activityCategory(item)))}<h2 class="title">${esc(item.title_en)}</h2>${badge(status)}
+    <p>${esc(sampleCopy(item.organizer))} · Campus verification simulated</p><p class="meta">${localActivity(item) ? 'Local schedule' : 'Sample schedule'} · ${esc(schedule.starts)} to ${esc(schedule.ends)} · China Standard Time</p>
     ${para(sampleCopy(item.meeting_detail_en))}${para(sampleCopy(item.description_en))}</section>
-    ${heading('Places and cost', rows([['Capacity', item.capacity], ['Places remaining', item.remaining]]) + para(item.cost_split_en))}
+    ${heading('Places and cost', rows([['Capacity', item.capacity], ['Places remaining', item.remaining], ['Group preference', esc(item.gender || 'Any')]]) + para(item.cost_split_en))}
+    ${item.type === 'Carpool' ? heading('Carpool arrangements',rows([['From',esc(item.departure)],['To',esc(item.destination)],['Travel',esc(item.transport)],['Vehicle / booking',esc(item.vehicle)]])+ '<p class="meta">Companion request only. No vehicle booking, payment or driver verification is provided.</p>') : ''}
+    ${application && state.communityThreads?.[item.activity_id] ? link('M05','Open Conversation',{id:item.activity_id},'outline') : ''}
     ${heading('Before you apply', '<p>This is a simulated activity. Campus verification is simulated and does not imply endorsement.</p>')}
     <section>${link('F01', 'Report', { kind: 'activity', id: item.activity_id })}</section>`, button ? toolbar(button) : '');
 }
 
 function applicationForm() {
-  const item = lookup(data.activities, 'activity_id', params.get('id'));
+  const item = getActivity(params.get('id'));
   if (!item) return unavailable();
   if (!state.profile || !state.verified) return show(notice('Simulated verification required', 'Start the application from the activity page.', link('Q02', 'Back to Activity', { id: item.activity_id }, 'primary')));
   const previous = state.applications[item.activity_id];
   if (previous && previous.status !== 'Withdrawn') return show(notice('Application already saved', 'Your existing application is available in My Applications.', link('M03', 'View My Application', { id: item.activity_id }, 'primary')));
+  if (localActivity(item)) return show(notice('Your activity','You cannot apply to your own activity.',link('M06','Manage My Activity')));
   if (activityStatus(item) !== 'Open for applications') return show(notice('Applications are closed', 'You can still view the original activity.', link('Q02', 'Back to Activity', { id: item.activity_id })));
   show(`<section class="stack">${notice('Simulated application', 'No real host will be contacted.')}
     <h2>${esc(item.title_en)}</h2><p class="meta">Sample schedule · ${esc(activitySchedule(item).starts)}</p>
-    <form id="application" class="fields">${field('message', 'Your Message', `<textarea id="message" name="message" maxlength="200" placeholder="Share why you would like to join.">${esc(state.drafts?.[item.activity_id])}</textarea>`, 'Optional · Up to 200 characters. Please leave out contact details.')}
+    <form id="application" class="fields">${field('partySize','People in this application',input('partySize','number',Math.min(Number(state.communityDraft?.existing)||1,item.remaining),`required min="1" max="${item.remaining}"`),'Include yourself. Acceptance reserves this number of demo places.')} ${field('message', 'Your Message', `<textarea id="message" name="message" maxlength="200" placeholder="Share why you would like to join.">${esc(state.drafts?.[item.activity_id])}</textarea>`, 'Optional · Up to 200 characters. Please leave out contact details.')}
     <label class="check"><input type="checkbox" name="confirm" required>I understand that this is a simulated application.</label></form></section>`,
     toolbar(submit('Submit Simulated Application', 'application')));
 }
@@ -699,7 +807,7 @@ function storyDetails() {
 const saveTypes = { trip: ['routes', 'route_id', 'E03', 'My Trips'], guide: ['guides', 'guide_id', 'L02', 'Saved Guides'], story: ['stories', 'story_id', 'Q04', 'Saved Stories'], activity: ['activities', 'activity_id', 'Q02', 'Activities'] };
 const itemFor = (kind, id) => {
   const type = Object.hasOwn(saveTypes, kind) ? saveTypes[kind] : null;
-  return type ? lookup(data[type[0]], type[1], id) : undefined;
+  return kind === 'activity' ? getActivity(id) : type ? lookup(data[type[0]], type[1], id) : undefined;
 };
 
 function saveButton(kind, id) {
@@ -712,7 +820,7 @@ function me() {
     <p class="meta">${state.verified ? 'Campus verification simulated' : 'Campus verification not completed'}</p>
     ${!state.profile ? action('sign-in', 'Sign In with a Sample Profile', 'primary') : ''}</section>
     <section class="stack">${['trip', 'guide', 'story'].map(kind => link('M02', saveTypes[kind][3], { kind }, 'outline full')).join('')}
-    ${link('M03', 'My Applications', {}, 'outline full')}${link('I01', 'About BayGo', {}, 'outline full')}</section>${localDataSettings()}`, tabbar(), true);
+    ${link('M04',`Inbox (${threadUnread()})`,{},'outline full')}${link('M06','My Activities',{},'outline full')}${link('M03', 'My Applications', {}, 'outline full')}${link('I01', 'About BayGo', {}, 'outline full')}</section>${localDataSettings()}`, tabbar(), true);
 }
 
 function savedItems() {
@@ -741,8 +849,9 @@ function applications() {
       const item = itemFor('activity', activityId);
       if (!item) return '';
       return `<article class="card">${badge(esc(record.status), record.status === 'Accepted' ? 'good' : '')}<h3>${esc(item.title_en)}</h3>
-      ${record.message ? para(record.message) : ''}${link('Q02', 'Back to Activity', { id: activityId })}
-      ${record.status === 'Pending' ? action('withdraw', 'Withdraw Application', 'outline', `data-id="${activityId}"`) : ''}</article>`;
+      <p class="meta">${Number(record.partySize)||1} person(s) in this application.</p>${record.message ? para(record.message) : ''}${link('M05','Open Conversation',{id:activityId},'outline')}${link('Q02', 'Back to Activity', { id: activityId })}
+      ${['Pending','Accepted'].includes(record.status) ? action('withdraw', 'Withdraw Application', 'outline', `data-id="${esc(activityId)}"`) : ''}
+      ${record.status === 'Pending' && !localActivity(item) ? `<details class="demo-controls"><summary>Demo controls: simulate a host decision</summary><p class="meta">You are changing this local example yourself. No real host has responded.</p>${action('demo-decision','Simulate Accept','outline',`data-id="${esc(activityId)}" data-status="Accepted"`)}${action('demo-decision','Simulate Decline','outline',`data-id="${esc(activityId)}" data-status="Declined"`)}</details>` : ''}</article>`;
     }).join('') || '<p>No simulated applications yet.</p>' : action('sign-in', 'Sample Sign-in', 'primary')}</section>`);
 }
 
@@ -777,7 +886,7 @@ function unavailable() {
   show(notice('This item is unavailable', 'It may have moved or is currently unavailable.', `<div class="cluster">${action('back', 'Back', 'outline')}${link('H01', 'Home', {}, 'primary')}</div>`));
 }
 
-const screens = { H01: home, C01: cities, C02: cityHome, R01: curatedRoutes, R02: curatedDetails, P01: multiPlanner, P02: multiResult, E01: planner, E02: results, E03: tripDetails, E04: placeDetails, D01: directory, L01: life, L02: guideDetails, Q01: community, Q02: activityDetails, Q03: applicationForm, Q04: storyDetails, M01: me, M02: savedItems, M03: applications, A01: auth, A02: auth, F01: report, I01: about };
+const screens = { H01: home, C01: cities, C02: cityHome, R01: curatedRoutes, R02: curatedDetails, P01: multiPlanner, P02: multiResult, E01: planner, E02: results, E03: tripDetails, E04: placeDetails, D01: directory, L01: life, L02: guideDetails, L03: intercityHub, Q01: community, Q02: activityDetails, Q03: applicationForm, Q04: storyDetails, Q05: communityFind, Q06: communityMatches, M04: communityInbox, M05: communityConversation, M06: myActivities, M01: me, M02: savedItems, M03: applications, A01: auth, A02: auth, F01: report, I01: about };
 
 function render({ restore = false, focus = true } = {}) {
   const [target, query] = location.hash.slice(1).split('?');
@@ -811,7 +920,9 @@ function startAuth(task, requiresVerification = false) {
 }
 
 function finishTask(task) {
-  if (task?.type === 'apply') {
+  if (task?.type === 'community') {
+    routeTo('#Q05?mode=create');
+  } else if (task?.type === 'apply') {
     routeTo(url('Q03', { id: task.id }));
   } else {
     back();
@@ -844,12 +955,32 @@ function selectCity(city, discard = false) {
 }
 
 const actions = {
+  ...communityActions,
   'add-plan-stop': button => {
     const item=directoryPlaces.find(p=>p.id===button.dataset.id && p.city===state.city);
     if(!item)return;
-    state.customPlans ||= {}; const ids=state.customPlans[state.city] ||= [];
-    if(!ids.includes(item.id)) ids.push(item.id);
-    persist(); announce('Added to your plan. Select another place or open My Plan.');
+    if (selectedPlanIds().includes(item.id)) return announce('This place is already in your plan.');
+    if (commit(() => { state.customPlans ||= {}; state.customPlans[state.city] = [...selectedPlanIds(), item.id]; })) {
+      refresh();
+      announce('Added to your plan. Continue choosing places or view your route.');
+    }
+  },
+  'remove-plan-stop': button => {
+    if (commit(() => { state.customPlans ||= {}; state.customPlans[state.city] = selectedPlanIds().filter(id => id !== button.dataset.id); })) {
+      updatePlanSelection();
+      updatePlanSearchResults();
+      announce('Removed from this city’s plan.');
+    }
+  },
+  'clear-plan-search': () => {
+    const search = app.querySelector('#plan-place-search');
+    if (!search) return;
+    search.value = '';
+    state.planSearch ||= {};
+    state.planSearch[state.city] = '';
+    persist();
+    updatePlanSearchResults();
+    search.focus();
   },
   'move-stop': button => {
     const ids = state.customPlans?.[state.city] || [];
@@ -925,15 +1056,15 @@ const actions = {
   apply: () => {
     const id = params.get('id');
     const item = itemFor('activity', id);
-    if (!item || activityStatus(item) !== 'Open for applications') return;
+    if (!item || localActivity(item) || activityStatus(item) !== 'Open for applications') return;
     const existing = state.applications[id];
     if (existing && existing.status !== 'Withdrawn') return routeTo(url('M03', { id }));
     startAuth({ type: 'apply', id }, true);
   },
   withdraw: button => {
     const id = button.dataset.id;
-    if (state.applications[id]?.status !== 'Pending') return;
-    if (commit(() => { state.applications[id].status = 'Withdrawn'; })) {
+    if (!['Pending','Accepted'].includes(state.applications[id]?.status)) return;
+    if (commit(() => { state.applications[id].status = 'Withdrawn'; addCommunityEvent(id,'Application withdrawn locally. No host was notified.'); })) {
       refresh();
       announce('Simulated application withdrawn.');
     }
@@ -946,16 +1077,16 @@ const actions = {
   'sign-in': () => startAuth({ type: 'return' }),
   'complete-sign-in': () => {
     if (!commit(() => { state.profile = true; })) return;
-    if (entry.task?.type === 'apply' && !state.verified) {
+    if (['apply','community'].includes(entry.task?.type) && !state.verified) {
       history.replaceState(entry, '', '#A02');
       render();
     } else finishTask(entry.task);
   },
   'complete-verification': () => {
-    if (!state.profile || entry.task?.type !== 'apply') return back();
+    if (!state.profile || !['apply','community'].includes(entry.task?.type)) return back();
     if (!commit(() => { state.verified = true; })) return;
     const task = entry.task;
-    history.replaceState(entry, '', url('Q03', { id: task.id }));
+    history.replaceState(entry, '', task.type === 'community' ? '#Q05?mode=create' : url('Q03', { id: task.id }));
     render();
     announce('Campus verification simulated');
   },
@@ -994,8 +1125,20 @@ app.addEventListener('click', event => {
 });
 
 app.addEventListener('input', event => {
+  if (event.target.id === 'plan-place-search') {
+    state.planSearch ||= {};
+    state.planSearch[state.city] = event.target.value;
+    persist();
+    updatePlanSearchResults();
+    return;
+  }
   const form = event.target.form;
-  if (form?.id === 'planner') {
+  if (form?.id === 'community-find') {
+    const fields=Object.fromEntries(new FormData(form));
+    commit(()=>{state.communityDraft={...state.communityDraft,...fields};});
+    const carpool=form.querySelector('#carpool-fields');
+    if(carpool) carpool.hidden=fields.category!=='Carpool';
+  } else if (form?.id === 'planner') {
     state.filters = collectFilters(form);
     const visibleErrors = new Set([...form.querySelectorAll('[aria-invalid="true"]')].map(control => control.id));
     if (visibleErrors.size) {
@@ -1011,16 +1154,40 @@ app.addEventListener('input', event => {
 });
 
 app.addEventListener('change', event => {
+  if (event.target.dataset.permitChoice) {
+    const choice=event.target.dataset.permitChoice;
+    const allowed={service:['first','endorsement'],residence:['unknown','guangdong','other']};
+    if(!allowed[choice]?.includes(event.target.value)) return;
+    const focusedId=event.target.id;
+    if(commit(()=>{state.guideChoices ||= {};state.guideChoices[permitGuide.guide_id]={...permitChoices(),[choice]:event.target.value};})) {
+      refresh();
+      document.getElementById(focusedId)?.focus();
+    }
+    return;
+  }
   if (event.target.dataset.planStop) {
-    state.customPlans ||= {};
-    const ids = state.customPlans[state.city] ||= [];
     const id = event.target.dataset.planStop;
-    if (event.target.checked && !ids.includes(id)) ids.push(id);
-    if (!event.target.checked) state.customPlans[state.city] = ids.filter(x => x !== id);
-    persist();
+    const item = directoryPlaces.find(place => place.id === id && place.city === state.city);
+    if (!item) return;
+    const ok = commit(() => {
+      state.customPlans ||= {};
+      const ids = selectedPlanIds();
+      state.customPlans[state.city] = event.target.checked ? [...new Set([...ids, id])] : ids.filter(value => value !== id);
+    });
+    if (!ok) event.target.checked = selectedPlanIds().includes(id);
+    updatePlanSelection();
   }
   const id = event.target.dataset.checklist;
-  if (id) commit(() => { state.checklist[id] = { prepared: event.target.checked }; });
+  if (id) {
+    const text = event.target.dataset.checklistItem;
+    const guide = lookup(data.guides, 'guide_id', id);
+    if (!guide || !preparationItems(guide).includes(text)) return;
+    const ok = commit(() => {
+      const previous = state.checklist[id] || {};
+      state.checklist[id] = { ...previous, items: { ...(previous.items || {}), [text]: event.target.checked } };
+    });
+    if (!ok) event.target.checked = !!state.checklist[id]?.items?.[text];
+  }
 });
 
 app.addEventListener('submit', event => {
@@ -1028,6 +1195,7 @@ app.addEventListener('submit', event => {
   if (form.method === 'dialog') return;
   event.preventDefault();
   const fields = Object.fromEntries(new FormData(form));
+  if (communitySubmit(form,fields)) return;
   if (form.id === 'multi-plan') {
     if ((state.customPlans?.[state.city] || []).length < 2) { announce('Choose at least two places.'); return; }
     routeTo('#P02');
@@ -1056,10 +1224,15 @@ app.addEventListener('submit', event => {
   } else if (form.id === 'application') {
     const id = params.get('id');
     const item = itemFor('activity', id);
-    if (!item || !state.verified || !fields.confirm || activityStatus(item) !== 'Open for applications') return;
+    if (!item || localActivity(item) || !state.profile || !state.verified || !fields.confirm || activityStatus(item) !== 'Open for applications') return;
     if (state.applications[id] && state.applications[id].status !== 'Withdrawn') return;
+    const partySize=Number(fields.partySize || 1);
+    if(!Number.isInteger(partySize) || partySize<1 || partySize>item.remaining) {announce('Choose a group size within the remaining places.');return;}
     if (commit(() => {
-      state.applications[id] = { status: 'Pending', message: (fields.message || '').slice(0, 200) };
+      const schedule=activitySchedule(item);
+      state.applications[id] = { status: 'Pending', partySize, scheduledStart:schedule.starts, scheduledEnd:schedule.ends, message: (fields.message || '').slice(0, 200) };
+      addCommunityEvent(id,'Application saved as pending on this device. No host was contacted.');
+      if(fields.message?.trim()) state.communityThreads[id].messages.push({role:'you',text:fields.message.trim().slice(0,200),at:new Date().toISOString()});
       if (state.drafts) delete state.drafts[id];
     })) routeTo(url('M03', { id, saved: '1' }));
   } else if (form.id === 'report') {
@@ -1184,21 +1357,63 @@ function legLink(from, to) {
 }
 function stopSequence(ids) {
   const stops=ids.map(id=>directoryPlaces.find(p=>p.id===id)).filter(Boolean);
-  return `<ol class="timeline">${stops.map((p,i)=>`<li><h3>${i+1}. ${esc(p.name)}</h3>${directoryPhoto(p)}<p>${esc(p.descriptionEn)}</p>${link('E04','Place details',{id:p.id})}${i<stops.length-1?`<section class="card leg-estimate" data-from="${p.id}" data-to="${stops[i+1].id}" aria-live="polite"><p>Checking route distance and transport options…</p></section><p>${legLink(p,stops[i+1])}</p>`:''}</li>`).join('')}</ol>`;
+  return `<ol class="timeline">${stops.map((p,i)=>`<li><h3>${i+1}. ${esc(p.name)}</h3>${directoryPhoto(p)}<p>${esc(p.descriptionEn)}</p>${placePriceBrief(p)}${link('E04','Place details',{id:p.id})}${i<stops.length-1?`<section class="card leg-estimate" data-from="${p.id}" data-to="${stops[i+1].id}" aria-live="polite"><p>Checking route distance and transport options…</p></section><p>${legLink(p,stops[i+1])}</p>`:''}</li>`).join('')}</ol>`;
 }
 function curatedDetails() {
   const r=(window.BAYGO_CURATED||[]).find(r=>r.id===params.get('id'));
   if(!r)return unavailable();
   show(`<section><p class="eyebrow">${esc(r.city)} · Curated route</p><h2>${esc(r.title)}</h2><p>${esc(r.summary)}</p><p class="meta">A suggested sequence, not a verified fastest route. Check opening hours, tickets, each transport leg and the return journey. Complete costs and travel times are not yet verified.</p></section>${stopSequence(r.stops)}${travelFromBNBU(r.stops[0],r.city)}${r.city===state.city?action('use-curated','Customise these stops','primary',`data-id="${r.id}"`):''}`);
 }
+function matchingPlanPlaces(query) {
+  const words = String(query || '').normalize('NFKC').trim().toLowerCase().split(/\s+/).filter(Boolean);
+  return directoryPlaces.filter(item => item.city === state.city && words.every(word =>
+    [item.name, item.localName, item.district, item.address, item.category, item.descriptionEn].join(' ').normalize('NFKC').toLowerCase().includes(word)));
+}
+
+function planPlaceOptions(matches, selected) {
+  return directoryCategories.map(category => {
+    const list = matches.filter(item => item.category === category);
+    return list.length ? `<details open><summary>${esc(category)} · ${list.length}</summary>${list.map(item => `<label class="check"><input type="checkbox" data-plan-stop="${esc(item.id)}" ${selected.includes(item.id) ? 'checked' : ''}><span>${esc(item.name)}${item.localName && item.localName !== item.name ? `<small class="plan-local-name" lang="zh">${esc(item.localName)}</small>` : ''}<small class="plan-local-name">${esc(placePriceText(item))}</small></span></label>`).join('')}</details>` : '';
+  }).join('') || '<p class="meta">No places in the current directory match your search. Try another name or clear the search. Your selected places are kept.</p>';
+}
+
+function planSelectionSummary() {
+  const ids = selectedPlanIds();
+  return `<p><strong>${ids.length} ${ids.length === 1 ? 'place' : 'places'} selected</strong> · at least 2 to build a route</p>
+    ${ids.length ? `<ol class="plan-selected-list">${ids.map(id => `<li><span>${esc(placeName(id))}</span>${action('remove-plan-stop', 'Remove', 'text', `data-id="${esc(id)}" aria-label="${esc('Remove ' + placeName(id))}"`)}</li>`).join('')}</ol>` : '<p class="meta">Choose places below. Search does not clear your selections.</p>'}`;
+}
+
+function updatePlanSelection() {
+  const summary = app.querySelector('#plan-selected');
+  if (summary) summary.innerHTML = planSelectionSummary();
+}
+
+function updatePlanSearchResults() {
+  const input = app.querySelector('#plan-place-search');
+  const results = app.querySelector('#plan-search-results');
+  const status = app.querySelector('#plan-search-count');
+  if (!input || !results || !status) return;
+  const matches = matchingPlanPlaces(input.value);
+  results.innerHTML = planPlaceOptions(matches, selectedPlanIds());
+  status.textContent = `${matches.length} ${matches.length === 1 ? 'place' : 'places'} found in ${state.city}`;
+}
+
 function multiPlanner() {
-  const selected=state.customPlans?.[state.city]||[];
-  show(`<section class="stack"><h2>Build a day in ${esc(state.city)}</h2><p>Select at least two places. Your selection order becomes the route order; you can reorder stops in the next step.</p><p>Start and return: BNBU. ${link('H01','Change city on Home')}</p>${link('R01','Prefer a ready-made route?')}</section><form id="multi-plan"><div class="stack">${directoryCategories.map(category=>{const list=directoryPlaces.filter(p=>p.city===state.city&&p.category===category);return list.length?`<details open><summary>${esc(category)}</summary>${list.map(p=>`<label class="check"><input type="checkbox" data-plan-stop="${p.id}" ${selected.includes(p.id)?'checked':''}>${esc(p.name)}</label>`).join('')}</details>`:''}).join('')}</div>${submit('Build My Route')}</form>`,tabbar(),true);
+  const query = state.planSearch?.[state.city] || '';
+  const matches = matchingPlanPlaces(query);
+  show(`<section class="stack"><h2>Build a day in ${esc(state.city)}</h2><p>Select at least two places. Your selection order becomes the route order; you can reorder stops in the next step.</p><p>Start and return: BNBU. ${link('H01','Change city on Home')}</p>${link('R01','Prefer a ready-made route?')}</section>
+    <section class="card fields">${field('plan-place-search', 'Find a place to add', input('plan-place-search', 'search', query, 'maxlength="100" placeholder="English or Chinese name, area or category" aria-controls="plan-search-results"'))}
+    <p class="meta">Search places already in our directory. New places need verification before they can be added.</p>
+    <div>${action('clear-plan-search', 'Clear Search', 'reset-link')}</div></section>
+    <section class="card stack" id="plan-selected">${planSelectionSummary()}</section>
+    <form id="multi-plan"><p class="meta" id="plan-search-count" role="status" aria-live="polite">${matches.length} ${matches.length === 1 ? 'place' : 'places'} found in ${esc(state.city)}</p>
+    <div class="stack" id="plan-search-results">${planPlaceOptions(matches, selectedPlanIds())}</div>
+    <div class="planner-submit">${submit('Build My Route')}</div></form>`,tabbar(),true);
 }
 function multiResult() {
-  const ids=(state.customPlans?.[state.city]||[]).filter(id=>directoryPlaces.some(p=>p.id===id&&p.city===state.city));
+  const ids=selectedPlanIds();
   if(ids.length<2)return multiPlanner();
-  show(`<section><h2>Your ${esc(state.city)} itinerary</h2><p>BNBU → ${ids.map(placeName).map(esc).join(' → ')} → BNBU</p><p class="meta">Draft in your chosen order. No claim of fastest travel or budget feasibility. Each leg opens with the correct two stops; check the full cost and return service before departure.</p>${link('P01','Edit selected places')}</section><section class="card">${ids.map((id,i)=>`<p>${i+1}. ${esc(placeName(id))} ${i?action('move-stop','Move up','text',`data-id="${id}" data-direction="-1"`):''} ${i<ids.length-1?action('move-stop','Move down','text',`data-id="${id}" data-direction="1"`):''}</p>`).join('')}</section>${travelFromBNBU(ids[0],state.city)}${stopSequence(ids)}<section class="card"><h3>Return to BNBU</h3><p>Plan the return from the final stop. For cross-city travel, confirm the return coach or border connection separately.</p>${state.city==='Zhuhai' ? legLink(directoryPlaces.find(p=>p.id===ids.at(-1)),{name:'BNBU',amapPoint:{longitude:113.520652,latitude:22.347526}}):''}</section>`);
+  show(`<section><h2>Your ${esc(state.city)} itinerary</h2><p>BNBU → ${ids.map(placeName).map(esc).join(' → ')} → BNBU</p><p class="meta">Draft in your chosen order. No claim of fastest travel or budget feasibility. Each leg opens with the correct two stops; check the full cost and return service before departure.</p>${link('P01','Edit selected places')}</section><section class="card">${ids.map((id,i)=>`<p>${i+1}. ${esc(placeName(id))} ${i?action('move-stop','Move up','text',`data-id="${id}" data-direction="-1"`):''} ${i<ids.length-1?action('move-stop','Move down','text',`data-id="${id}" data-direction="1"`):''}</p>`).join('')}</section>${stopCostPanel(ids)}${travelFromBNBU(ids[0],state.city)}${stopSequence(ids)}<section class="card"><h3>Return to BNBU</h3><p>Plan the return from the final stop. For cross-city travel, confirm the return coach or border connection separately.</p>${state.city==='Zhuhai' ? legLink(directoryPlaces.find(p=>p.id===ids.at(-1)),{name:'BNBU',amapPoint:{longitude:113.520652,latitude:22.347526}}):''}</section>`);
 }
 
 // Keep unavailable third-party images from leaving a broken-image box.
@@ -1214,7 +1429,7 @@ app.addEventListener('error', event => {
 }, true);
 
 function localDataSettings() {
-  return `<section class="card"><h3>Settings</h3><p class="meta">Saved items and plans are stored in this browser on this device.</p>${action('open-reset','Clear saved data on this device','outline')}<dialog id="clear-local-dialog" aria-labelledby="clear-local-title"><div class="stack"><h2 id="clear-local-title">Clear this device’s saved data?</h2><p>This removes saved places and trips, custom plans, applications, reports, drafts, filters and the sample profile. This cannot be undone. No data on other devices is affected.</p><div class="cluster"><form method="dialog"><button class="btn outline">Keep my data</button></form>${action('reset-demo','Clear this device’s data','primary')}</div></div></dialog></section>`;
+  return `<section class="card"><h3>Settings</h3><p class="meta">Saved items and plans are stored in this browser on this device.</p>${action('open-reset','Clear saved data on this device','outline')}<dialog id="clear-local-dialog" aria-labelledby="clear-local-title"><div class="stack"><h2 id="clear-local-title">Clear this device’s saved data?</h2><p>This removes saved places and trips, custom plans, applications, reports, drafts, filters, locally published activities, conversations and the sample profile. This cannot be undone. No data on other devices is affected.</p><div class="cluster"><form method="dialog"><button class="btn outline">Keep my data</button></form>${action('reset-demo','Clear this device’s data','primary')}</div></div></dialog></section>`;
 }
 
 async function loadLegEstimates() {

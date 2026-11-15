@@ -316,3 +316,26 @@ main section + section { margin-top: 24px; }
 .city-control-button { display: inline-flex; align-items: center; justify-content: space-between; gap: 22px; min-width: 140px; min-height: 44px; padding: 9px 16px; border-color: #a9c8e6; background: #fff; }
 .city-control-button span { font-size: 1.15em; }
 .home-context { align-items: center; }
+
+/* Reset is a secondary operation, visually separate from mode tabs and Apply. */
+.filter-reset { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px; }
+.btn.reset-link { min-height: 44px; padding-inline: 0; text-decoration: underline; text-underline-offset: .18em; font-weight: 500; }
+.filter-reset .meta { margin-top: 2px; }
+.preparation-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.preparation-list li { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.preparation-list .check { align-items: flex-start; min-height: 44px; }
+.preparation-list input { flex: 0 0 auto; margin-top: 4px; }
+.plan-selected-list { padding-left: 22px; margin: 0; }
+.plan-selected-list li { padding: 4px 0; overflow-wrap: anywhere; }
+.plan-selected-list .btn { margin-left: 8px; }
+.plan-local-name { display: block; }
+.planner-submit { margin-top: 20px; }
+.plan-place-actions .btn { width: fit-content; max-width: 100%; }
+.price-reference { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.price-reference p { overflow-wrap: anywhere; }
+.price-brief { color: var(--heading); }
+.message-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+.message-list p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.demo-controls { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
+.demo-controls summary { cursor: pointer; font-weight: 600; }
+#carpool-fields:not([hidden]) { display: grid; gap: 14px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
