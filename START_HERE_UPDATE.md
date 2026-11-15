@@ -21,6 +21,8 @@
 
 本次追加：Life 中可见 Intercity Travel & Tickets。切换珠海、广州、深圳、香港和澳门后，可见与该城市相关的交通指南。指南列有购票入口和准备清单；售票在运营方网站或微信内完成，不在 BayGo 内出票。
 
+发帖追加：Community → Student Stories → Write a Post 可创建带地点标签和餐品推荐的帖子。自选行程结果页、预设路线详情页和推荐路线详情页可点 Share Route to Student Stories，把路线带入草稿；补充内容、声明关联后，先预览再本地发布。Me → My Posts 可编辑或撤下。此追加必须同时上传 stories.js 和新版 app.js、index.html、styles.css。
+
 ## 五条验收路线
 
 - 地点与规划：打开地点 → Add to My Plan → 按钮变为已添加 → 再选地点 → 查看路线；尝试中文地点搜索，确认选择不丢。

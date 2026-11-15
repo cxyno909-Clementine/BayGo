@@ -25,7 +25,7 @@ const duration = min => `${Math.floor(min / 60) ? Math.floor(min / 60) + ' hr ' 
 const today = () => new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const minutes = time => { const [hour, minute] = time.split(':').map(Number); return hour * 60 + minute; };
 const clock = min => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
-const titles = { R01:'Recommended Routes', R02:'Route Details', P01:'Start Planning', P02:'Your Multi-stop Plan', H01: 'Home', C01: 'Choose a City', C02: 'Home', E01: 'Plan a Trip', E02: 'Suggested Trips', E03: 'Trip Details', E04: 'Place Details', D01: 'Explore Places', L01: 'Life Guides', L03: 'Intercity Travel & Tickets', L02: 'Guide Details', Q01: 'Community', Q02: 'Buddy Activity', Q03: 'Apply to Join', Q04: 'Student Story', Q05: 'Find or Create', Q06: 'Matching Activities', M04: 'Inbox', M05: 'Conversation', M06: 'My Activities', M01: 'Me', M02: 'Saved Items', M03: 'My Applications', A01: 'Sample Sign-in', A02: 'Simulated Campus Verification', F01: 'Report an Issue', I01: 'About BayGo' };
+const titles = { R01:'Recommended Routes', R02:'Route Details', P01:'Start Planning', P02:'Your Multi-stop Plan', H01: 'Home', C01: 'Choose a City', C02: 'Home', E01: 'Plan a Trip', E02: 'Suggested Trips', E03: 'Trip Details', E04: 'Place Details', D01: 'Explore Places', L01: 'Life Guides', L03: 'Intercity Travel & Tickets', L02: 'Guide Details', Q01: 'Community', Q02: 'Buddy Activity', Q03: 'Apply to Join', Q04: 'Student Story', Q05: 'Find or Create', Q06: 'Matching Activities', Q07: 'Write a Post', Q08: 'Preview Post', Q09: 'Choose a Draft', M07: 'My Posts', M04: 'Inbox', M05: 'Conversation', M06: 'My Activities', M01: 'Me', M02: 'Saved Items', M03: 'My Applications', A01: 'Sample Sign-in', A02: 'Simulated Campus Verification', F01: 'Report an Issue', I01: 'About BayGo' };
 const tabs = [['H01','Home','home'],['E01','Explore','compass'],['L01','Life','book'],['Q01','Community','people'],['M01','Me','person']];
 const icons = {
   home: 'M3 10 12 3l9 7v10H3z M9 20v-6h6v6', compass: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M16 8l-2 6-6 2 2-6z',
@@ -400,7 +400,7 @@ function tripDetails() {
   show(`<section class="stack trip-intro">
     ${detailPhoto(routePhotos[route.route_id])}
     <div class="cluster trip-tags">${badge(esc(route.city) + ' · Curated route')}${badge(duration(route.duration_min) + ' round trip')}${badge(esc(route.transport_modes))}</div>
-    <h2 class="title">${esc(route.title_en)}</h2><p>${esc(route.summary_en)}</p></section>
+    <h2 class="title">${esc(route.title_en)}</h2><p>${esc(route.summary_en)}</p>${action('share-route','Share Route to Student Stories','primary',`data-kind="recommended" data-id="${esc(route.route_id)}"`)}</section>
     <section>${match ? notice('Match details', esc(match.reason), matchBadge(match.status)) : notice('Estimated full-trip budget', 'Recommendations compare the full listed trip estimate with your budget. Check the itemised assumptions below; prices and opening hours can change.')}</section>
     ${heading('Itinerary · suggested timings', `<p class="meta">Follow the stops in order. Open each place for its map and directions; actual travel times depend on traffic and service schedules.</p><ol class="timeline">${stops.map((stop, index) => {
       const isEnd = index === stops.length - 1;
@@ -727,9 +727,9 @@ function activityCard(item) {
 }
 
 function storyCard(item) {
-  const cover = directoryPlaces.find(p => p.id === item.photo_place_ids?.[0]);
-  return `<article class="card">${cover ? directoryPhoto(cover) : ''}${badge('Sample content')}<h3>${esc(item.title_en)}</h3>
-    <p class="meta">${esc(item.city + ' · ' + item.category)}</p>${link('Q04', 'Read Story', { id: item.story_id }, 'outline')}</article>`;
+  const cover = directoryPlaces.find(p => p.id === (item.photo_place_ids?.[0] || item.placeIds?.[0]));
+  return `<article class="card">${cover ? directoryPhoto(cover) : ''}${badge(ownStory(item)?'Your local post':'Sample content')}<h3>${esc(item.title_en)}</h3>
+    ${ownStory(item)?storyTagsMarkup(item):''}<p class="meta">${esc(item.city + ' · ' + item.category)}</p>${link('Q04', 'Read Story', { id: item.story_id }, 'outline')}</article>`;
 }
 
 function community() {
@@ -745,19 +745,19 @@ function community() {
     : field('date', 'Date', input('date', 'date', f.date))
       + field('type', 'Type', select('type', [['All', 'All'], ['Outing', 'All outings'], ...activityCategories.map(name => [name, name])], f.type || 'All'));
   const collection = stories
-    ? data.stories.filter(item => item.city === filterCity && (!f.category || f.category === 'All' || item.category === f.category)
-      && [item.title_en, item.body_en, item.tags_en].join(' ').toLowerCase().includes((f.search || '').trim().toLowerCase()))
+    ? allStories().filter(item => item.city === filterCity && (!f.category || f.category === 'All' || item.category === f.category)
+      && [item.title_en, item.body_en, item.tags_en, ...(item.placeIds || []).map(placeName), ...Object.values(item.dishes || {})].join(' ').toLowerCase().includes((f.search || '').trim().toLowerCase()))
     : allActivities().filter(item => item.city === filterCity && (!f.type || f.type === 'All' || (f.type === 'Outing' ? item.type === 'Outing' : activityCategory(item) === f.type))
       && (!f.date || activitySchedule(item).starts.startsWith(f.date)));
   show(`<section class="stack">${cityButton()}<div class="segmented" aria-label="Community sections">
     ${link('Q01', 'Find Buddies', { tab: 'buddies' }, 'outline' + (stories ? '' : ' selected'))}${link('Q01', 'Student Stories', { tab: 'stories' }, 'outline' + (stories ? ' selected' : ''))}</div>
-    ${stories ? '' : `<div class="cluster">${link('Q05','Find or Create',{},'primary')}${link('M06','My Activities',{},'outline')}${link('M04',`Inbox (${threadUnread()})`,{},'outline')}</div>`}
+    ${stories ? `<div class="cluster">${action('write-story',state.storyDraft?'Continue Draft':'Write a Post','primary')}${link('M07','My Posts',{},'outline')}</div>` : `<div class="cluster">${link('Q05','Find or Create',{},'primary')}${link('M06','My Activities',{},'outline')}${link('M04',`Inbox (${threadUnread()})`,{},'outline')}</div>`}
     <form id="community-filter" class="fields" data-tab="${tab}"><input type="hidden" name="city" value="${esc(state.city)}"><p>Change city on Home.</p>
     <div class="pair">${filters}</div><div>${submit('Apply Filters')}</div>
     <div class="filter-reset">${action('clear-community', 'Clear Filters', 'reset-link')}<p class="meta">Only resets the filters in this section.</p></div></form>
     ${params.has('date') ? badge('Date filter · ' + esc(f.date)) : ''}</section>
-    <section class="card-list">${filterCity !== 'Zhuhai' && !collection.length ? notice('Local coverage', 'Community content is currently available for Zhuhai only.', action('zhuhai', 'Explore Zhuhai', 'primary'))
-    : collection.map(stories ? storyCard : activityCard).join('') || notice(stories ? 'No stories found.' : 'No activities found.', 'Try changing your filters.', stories ? '' : link('Q05','Find or Create',{},'primary'))}</section>`, tabbar(), true);
+    <section class="card-list">${filterCity !== 'Zhuhai' && !collection.length && !stories ? notice('Local coverage', 'Community content is currently available for Zhuhai only.', action('zhuhai', 'Explore Zhuhai', 'primary'))
+    : collection.map(stories ? storyCard : activityCard).join('') || notice(stories ? 'No stories found.' : 'No activities found.', 'Try changing your filters.', stories ? action('write-story','Write a Post','primary') : link('Q05','Find or Create',{},'primary'))}</section>`, tabbar(), true);
 }
 
 function activityDetails() {
@@ -795,8 +795,9 @@ function applicationForm() {
 }
 
 function storyDetails() {
-  const item = lookup(data.stories, 'story_id', params.get('id'));
+  const item = getStory(params.get('id'));
   if (!item) return unavailable();
+  if(ownStory(item))return userStoryDetails(item);
   show(`<section class="stack">${badge('Sample content')}<p class="eyebrow">${esc(item.city + ' · ' + item.category)}</p><h2 class="title">${esc(item.title_en)}</h2>
     <p class="meta">${esc(sampleCopy(item.author))} · Fictional student voice</p>${(item.paragraphs || [item.body_en]).map((text, index) => { const stop = directoryPlaces.find(p => p.id === item.photo_place_ids?.[index]); return `<section class="stack">${stop?.photo ? directoryPhoto(stop, true) : ''}${para(text)}${stop ? link('E04', 'Explore ' + esc(stop.name), {id:stop.id}) : ''}${stop?.photo ? `<p class="meta">${external(stop.photo.page, 'Photo source')} · ${external(stop.photo.licenseUrl, stop.photo.license)}</p>` : ''}</section>`; }).join('')}${item.route_id ? link('E03', 'Follow this itinerary', {id:item.route_id}, 'primary') : ''}</section>
     ${heading('Cost and place', para(item.cost_note_en) + (item.place_id ? link('E04', 'View Place', { id: item.place_id }) : ''))}
@@ -807,7 +808,7 @@ function storyDetails() {
 const saveTypes = { trip: ['routes', 'route_id', 'E03', 'My Trips'], guide: ['guides', 'guide_id', 'L02', 'Saved Guides'], story: ['stories', 'story_id', 'Q04', 'Saved Stories'], activity: ['activities', 'activity_id', 'Q02', 'Activities'] };
 const itemFor = (kind, id) => {
   const type = Object.hasOwn(saveTypes, kind) ? saveTypes[kind] : null;
-  return kind === 'activity' ? getActivity(id) : type ? lookup(data[type[0]], type[1], id) : undefined;
+  return kind === 'story' ? getStory(id) : kind === 'activity' ? getActivity(id) : type ? lookup(data[type[0]], type[1], id) : undefined;
 };
 
 function saveButton(kind, id) {
@@ -820,14 +821,14 @@ function me() {
     <p class="meta">${state.verified ? 'Campus verification simulated' : 'Campus verification not completed'}</p>
     ${!state.profile ? action('sign-in', 'Sign In with a Sample Profile', 'primary') : ''}</section>
     <section class="stack">${['trip', 'guide', 'story'].map(kind => link('M02', saveTypes[kind][3], { kind }, 'outline full')).join('')}
-    ${link('M04',`Inbox (${threadUnread()})`,{},'outline full')}${link('M06','My Activities',{},'outline full')}${link('M03', 'My Applications', {}, 'outline full')}${link('I01', 'About BayGo', {}, 'outline full')}</section>${localDataSettings()}`, tabbar(), true);
+    ${link('M07','My Posts',{},'outline full')}${link('M04',`Inbox (${threadUnread()})`,{},'outline full')}${link('M06','My Activities',{},'outline full')}${link('M03', 'My Applications', {}, 'outline full')}${link('I01', 'About BayGo', {}, 'outline full')}</section>${localDataSettings()}`, tabbar(), true);
 }
 
 function savedItems() {
   const kind = params.get('kind') || 'trip';
   if (!['trip', 'guide', 'story'].includes(kind)) return unavailable();
   const type = saveTypes[kind];
-  const items = data[type[0]].filter(item => state.saved[item[type[1]]] === kind);
+  const items = (kind==='story'?allStories():data[type[0]]).filter(item => state.saved[item[type[1]]] === kind);
   const browse = { trip: 'E01', guide: 'L01', story: 'Q01' }[kind];
   show(`<section class="stack"><h2 class="title">${type[3]}</h2>${state.profile
     ? items.map(item => `<article class="card"><p class="eyebrow">${esc(item.city)}</p><h3>${esc(item.title_en)}</h3>${link(type[2], 'View Details', { id: item[type[1]] }, 'outline')}</article>`).join('')
@@ -886,7 +887,7 @@ function unavailable() {
   show(notice('This item is unavailable', 'It may have moved or is currently unavailable.', `<div class="cluster">${action('back', 'Back', 'outline')}${link('H01', 'Home', {}, 'primary')}</div>`));
 }
 
-const screens = { H01: home, C01: cities, C02: cityHome, R01: curatedRoutes, R02: curatedDetails, P01: multiPlanner, P02: multiResult, E01: planner, E02: results, E03: tripDetails, E04: placeDetails, D01: directory, L01: life, L02: guideDetails, L03: intercityHub, Q01: community, Q02: activityDetails, Q03: applicationForm, Q04: storyDetails, Q05: communityFind, Q06: communityMatches, M04: communityInbox, M05: communityConversation, M06: myActivities, M01: me, M02: savedItems, M03: applications, A01: auth, A02: auth, F01: report, I01: about };
+const screens = { H01: home, C01: cities, C02: cityHome, R01: curatedRoutes, R02: curatedDetails, P01: multiPlanner, P02: multiResult, E01: planner, E02: results, E03: tripDetails, E04: placeDetails, D01: directory, L01: life, L02: guideDetails, L03: intercityHub, Q01: community, Q02: activityDetails, Q03: applicationForm, Q04: storyDetails, Q05: communityFind, Q06: communityMatches, Q07: storyEditor, Q08: storyPreview, Q09: storyDraftConflict, M07: myPosts, M04: communityInbox, M05: communityConversation, M06: myActivities, M01: me, M02: savedItems, M03: applications, A01: auth, A02: auth, F01: report, I01: about };
 
 function render({ restore = false, focus = true } = {}) {
   const [target, query] = location.hash.slice(1).split('?');
@@ -920,7 +921,9 @@ function startAuth(task, requiresVerification = false) {
 }
 
 function finishTask(task) {
-  if (task?.type === 'community') {
+  if (task?.type === 'story') {
+    routeTo('#Q07');
+  } else if (task?.type === 'community') {
     routeTo('#Q05?mode=create');
   } else if (task?.type === 'apply') {
     routeTo(url('Q03', { id: task.id }));
@@ -956,6 +959,7 @@ function selectCity(city, discard = false) {
 
 const actions = {
   ...communityActions,
+  ...storyActions,
   'add-plan-stop': button => {
     const item=directoryPlaces.find(p=>p.id===button.dataset.id && p.city===state.city);
     if(!item)return;
@@ -1077,16 +1081,16 @@ const actions = {
   'sign-in': () => startAuth({ type: 'return' }),
   'complete-sign-in': () => {
     if (!commit(() => { state.profile = true; })) return;
-    if (['apply','community'].includes(entry.task?.type) && !state.verified) {
+    if (['apply','community','story'].includes(entry.task?.type) && !state.verified) {
       history.replaceState(entry, '', '#A02');
       render();
     } else finishTask(entry.task);
   },
   'complete-verification': () => {
-    if (!state.profile || !['apply','community'].includes(entry.task?.type)) return back();
+    if (!state.profile || !['apply','community','story'].includes(entry.task?.type)) return back();
     if (!commit(() => { state.verified = true; })) return;
     const task = entry.task;
-    history.replaceState(entry, '', task.type === 'community' ? '#Q05?mode=create' : url('Q03', { id: task.id }));
+    history.replaceState(entry, '', task.type==='story' ? '#Q07' : task.type === 'community' ? '#Q05?mode=create' : url('Q03', { id: task.id }));
     render();
     announce('Campus verification simulated');
   },
@@ -1133,7 +1137,10 @@ app.addEventListener('input', event => {
     return;
   }
   const form = event.target.form;
-  if (form?.id === 'community-find') {
+  if(form?.id==='story-editor') {
+    if(event.target.id==='place-search') {state.storyPlaceSearch=event.target.value;persist();const draft=state.storyDraft;const matches=directoryPlaces.filter(p=>p.city===draft.city && [p.name,p.localName,p.category,p.district].join(' ').toLowerCase().includes(event.target.value.toLowerCase().trim()));const results=app.querySelector('#story-place-results');if(results)results.innerHTML=storyPlaceChoices(matches,draft);}
+    else {const fields=Object.fromEntries(new FormData(form));commit(()=>{state.storyDraft=collectStoryDraft(fields);});}
+  } else if (form?.id === 'community-find') {
     const fields=Object.fromEntries(new FormData(form));
     commit(()=>{state.communityDraft={...state.communityDraft,...fields};});
     const carpool=form.querySelector('#carpool-fields');
@@ -1154,6 +1161,8 @@ app.addEventListener('input', event => {
 });
 
 app.addEventListener('change', event => {
+  if(event.target.dataset.storyPlace) {const id=event.target.dataset.storyPlace,draft=state.storyDraft;if(!draft || !directoryPlaces.some(p=>p.id===id && p.city===draft.city))return;const ok=commit(()=>{draft.placeIds=event.target.checked?[...new Set([...draft.placeIds,id])]:draft.placeIds.filter(p=>p!==id);});if(!ok)event.target.checked=state.storyDraft.placeIds.includes(id);const tray=app.querySelector('#story-tagged-places');if(tray)tray.innerHTML=storyTaggedPlaces(state.storyDraft);return;}
+  if(event.target.hasAttribute?.('data-story-city')) {const draft=state.storyDraft;if(!draft)return;if(draft.placeIds.length || draft.route){event.target.value=draft.city;announce('Start a separate post to change city while keeping this draft.');return;}if(cityNames.includes(event.target.value) && commit(()=>{draft.city=event.target.value;}))refresh();return;}
   if (event.target.dataset.permitChoice) {
     const choice=event.target.dataset.permitChoice;
     const allowed={service:['first','endorsement'],residence:['unknown','guangdong','other']};
@@ -1195,7 +1204,7 @@ app.addEventListener('submit', event => {
   if (form.method === 'dialog') return;
   event.preventDefault();
   const fields = Object.fromEntries(new FormData(form));
-  if (communitySubmit(form,fields)) return;
+  if (storySubmit(form,fields) || communitySubmit(form,fields)) return;
   if (form.id === 'multi-plan') {
     if ((state.customPlans?.[state.city] || []).length < 2) { announce('Choose at least two places.'); return; }
     routeTo('#P02');
@@ -1362,7 +1371,7 @@ function stopSequence(ids) {
 function curatedDetails() {
   const r=(window.BAYGO_CURATED||[]).find(r=>r.id===params.get('id'));
   if(!r)return unavailable();
-  show(`<section><p class="eyebrow">${esc(r.city)} · Curated route</p><h2>${esc(r.title)}</h2><p>${esc(r.summary)}</p><p class="meta">A suggested sequence, not a verified fastest route. Check opening hours, tickets, each transport leg and the return journey. Complete costs and travel times are not yet verified.</p></section>${stopSequence(r.stops)}${travelFromBNBU(r.stops[0],r.city)}${r.city===state.city?action('use-curated','Customise these stops','primary',`data-id="${r.id}"`):''}`);
+  show(`<section><p class="eyebrow">${esc(r.city)} · Curated route</p><h2>${esc(r.title)}</h2>${action('share-route','Share Route to Student Stories','primary',`data-kind="curated" data-id="${esc(r.id)}"`)}<p>${esc(r.summary)}</p><p class="meta">A suggested sequence, not a verified fastest route. Check opening hours, tickets, each transport leg and the return journey. Complete costs and travel times are not yet verified.</p></section>${stopSequence(r.stops)}${travelFromBNBU(r.stops[0],r.city)}${r.city===state.city?action('use-curated','Customise these stops','primary',`data-id="${r.id}"`):''}`);
 }
 function matchingPlanPlaces(query) {
   const words = String(query || '').normalize('NFKC').trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -1413,7 +1422,7 @@ function multiPlanner() {
 function multiResult() {
   const ids=selectedPlanIds();
   if(ids.length<2)return multiPlanner();
-  show(`<section><h2>Your ${esc(state.city)} itinerary</h2><p>BNBU → ${ids.map(placeName).map(esc).join(' → ')} → BNBU</p><p class="meta">Draft in your chosen order. No claim of fastest travel or budget feasibility. Each leg opens with the correct two stops; check the full cost and return service before departure.</p>${link('P01','Edit selected places')}</section><section class="card">${ids.map((id,i)=>`<p>${i+1}. ${esc(placeName(id))} ${i?action('move-stop','Move up','text',`data-id="${id}" data-direction="-1"`):''} ${i<ids.length-1?action('move-stop','Move down','text',`data-id="${id}" data-direction="1"`):''}</p>`).join('')}</section>${stopCostPanel(ids)}${travelFromBNBU(ids[0],state.city)}${stopSequence(ids)}<section class="card"><h3>Return to BNBU</h3><p>Plan the return from the final stop. For cross-city travel, confirm the return coach or border connection separately.</p>${state.city==='Zhuhai' ? legLink(directoryPlaces.find(p=>p.id===ids.at(-1)),{name:'BNBU',amapPoint:{longitude:113.520652,latitude:22.347526}}):''}</section>`);
+  show(`<section>${action('share-route','Share Route to Student Stories','primary','data-kind="custom"')}${state.previousStoryPlan?action('undo-story-plan','Undo Imported Route','outline'):''}<h2>Your ${esc(state.city)} itinerary</h2><p>BNBU → ${ids.map(placeName).map(esc).join(' → ')} → BNBU</p><p class="meta">Draft in your chosen order. No claim of fastest travel or budget feasibility. Each leg opens with the correct two stops; check the full cost and return service before departure.</p>${link('P01','Edit selected places')}</section><section class="card">${ids.map((id,i)=>`<p>${i+1}. ${esc(placeName(id))} ${i?action('move-stop','Move up','text',`data-id="${id}" data-direction="-1"`):''} ${i<ids.length-1?action('move-stop','Move down','text',`data-id="${id}" data-direction="1"`):''}</p>`).join('')}</section>${stopCostPanel(ids)}${travelFromBNBU(ids[0],state.city)}${stopSequence(ids)}<section class="card"><h3>Return to BNBU</h3><p>Plan the return from the final stop. For cross-city travel, confirm the return coach or border connection separately.</p>${state.city==='Zhuhai' ? legLink(directoryPlaces.find(p=>p.id===ids.at(-1)),{name:'BNBU',amapPoint:{longitude:113.520652,latitude:22.347526}}):''}</section>`);
 }
 
 // Keep unavailable third-party images from leaving a broken-image box.
@@ -1429,7 +1438,7 @@ app.addEventListener('error', event => {
 }, true);
 
 function localDataSettings() {
-  return `<section class="card"><h3>Settings</h3><p class="meta">Saved items and plans are stored in this browser on this device.</p>${action('open-reset','Clear saved data on this device','outline')}<dialog id="clear-local-dialog" aria-labelledby="clear-local-title"><div class="stack"><h2 id="clear-local-title">Clear this device’s saved data?</h2><p>This removes saved places and trips, custom plans, applications, reports, drafts, filters, locally published activities, conversations and the sample profile. This cannot be undone. No data on other devices is affected.</p><div class="cluster"><form method="dialog"><button class="btn outline">Keep my data</button></form>${action('reset-demo','Clear this device’s data','primary')}</div></div></dialog></section>`;
+  return `<section class="card"><h3>Settings</h3><p class="meta">Saved items and plans are stored in this browser on this device.</p>${action('open-reset','Clear saved data on this device','outline')}<dialog id="clear-local-dialog" aria-labelledby="clear-local-title"><div class="stack"><h2 id="clear-local-title">Clear this device’s saved data?</h2><p>This removes saved places and trips, custom plans, applications, reports, drafts, filters, locally published activities, posts, post drafts, conversations and the sample profile. This cannot be undone. No data on other devices is affected.</p><div class="cluster"><form method="dialog"><button class="btn outline">Keep my data</button></form>${action('reset-demo','Clear this device’s data','primary')}</div></div></dialog></section>`;
 }
 
 async function loadLegEstimates() {

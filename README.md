@@ -8,7 +8,7 @@ Repository: https://github.com/cxyno909-Clementine/BayGo
 Site: https://cxyno909-clementine.github.io/BayGo/
 This local release has not yet been uploaded. Follow START_HERE_UPDATE.md. Upload the extracted files into the existing repository root. Do not upload the ZIP itself, create a second repository or add an enclosing directory. Keep Pages on main and /(root).
 
-Runtime files: index.html, styles.css, config.js, content.js, places.js, prices.js, transit.js, curated.js, community.js, permits.js, travel-guides.js, app.js and the complete assets folder. Navigation uses hashes and relative asset paths.
+Runtime files: index.html, styles.css, config.js, content.js, places.js, prices.js, transit.js, curated.js, community.js, permits.js, travel-guides.js, stories.js, app.js and the complete assets folder. Navigation uses hashes and relative asset paths.
 
 ## November 15 improvements
 
@@ -17,6 +17,7 @@ Runtime files: index.html, styles.css, config.js, content.js, places.js, prices.
 - Intercity travel: eight English guides covering AA/Dudu coaches, domestic/cross-boundary ferries, bridge shuttles, boundary rail and Macao local transport; booking instructions, conditional concessions and source links. Available from Life in all five cities.
 - Prices: 7 matched historical food-spend references and 4 official admission references; unknown prices remain unknown, currencies separate and trip subtotals explicitly partial.
 - Community: categories, strict find/create matching, retained drafts, local publication/cancellation, carpool details, group applications, local inbox/messages and explicit simulated host-decision controls.
+- Student Stories: write/preview/publish local posts, tag directory places, add per-place dishes/tips, edit/unpublish and share a saved route snapshot from all route-detail screens. Draft conflicts preserve the previous draft; route imports have undo.
 - Filter reset is separated from the apply action.
 
 ## Prototype limitations

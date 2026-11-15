@@ -336,6 +336,9 @@ main section + section { margin-top: 24px; }
 .price-brief { color: var(--heading); }
 .message-list { list-style: none; padding: 0; display: grid; gap: 12px; }
 .message-list p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.story-body p { white-space: pre-wrap; overflow-wrap: anywhere; }
+#story-place-results { max-height: 320px; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+#story-tagged-places { display: grid; gap: 12px; }
 .demo-controls { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
 .demo-controls summary { cursor: pointer; font-weight: 600; }
 #carpool-fields:not([hidden]) { display: grid; gap: 14px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
