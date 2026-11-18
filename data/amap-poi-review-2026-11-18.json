@@ -1,0 +1,408 @@
+[
+  {
+    "placeId": "PL-ZH-012",
+    "path": "/v5/place/text",
+    "code": "10000",
+    "candidates": [
+      {
+        "parent": "",
+        "address": "珠海大道8号",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "商务住宅;楼宇;商住两用楼宇",
+        "photos": [
+          {
+            "title": "",
+            "url": "http://store.is.autonavi.com/showpic/71ff6293979cc54e65afa96114231135"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/98183310204ac7b30000008129972762?type=pic"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/093c8860aade5bc50000002596696878?type=pic"
+          }
+        ],
+        "typecode": "120203",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "珠海华发商都",
+        "location": "113.510858,22.224557",
+        "id": "B0FFFFZ2VB"
+      },
+      {
+        "parent": "B0FFFFZ2VB",
+        "address": "珠海大道8号珠海华发商都",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "交通设施服务;停车场;公共停车场",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/bffc09dd68c6d88d0000002829878957?type=pic"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/3151b981f0ae5239d506058c3597c15a"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/4264b40b1ed81c9990c464ee26f44d76"
+          }
+        ],
+        "typecode": "150904",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "珠海华发商都地下停车场",
+        "location": "113.508909,22.223953",
+        "id": "B0GKXDEWSY"
+      },
+      {
+        "parent": "B0K64AOC45",
+        "address": "华发香山湖畔",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "购物服务;购物相关场所;购物相关场所",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/63a7080fd81759d2e09c46ddf7af5329"
+          }
+        ],
+        "typecode": "060000",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "华发商都(新香洲店)",
+        "location": "113.547575,22.280575",
+        "id": "B0M64CJQ0Q"
+      },
+      {
+        "parent": "",
+        "address": "银湾路1603号",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "购物服务;商场;购物中心",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0JU47BEX5/comment/c7f17523-4f30-4a81-aed3-1106b50614c6.png"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0JU47BEX5/comment/E6936A3D_F592_4FF5_B22D_C7FAA0794788_L0_001_1500_200_1762411242018_14550233.jpg"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/cd97686c85f350be0000009448410936?type=pic"
+          }
+        ],
+        "typecode": "060101",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "十字门华发商都",
+        "location": "113.523418,22.175039",
+        "id": "B0JU47BEX5"
+      },
+      {
+        "parent": "B0FFFFZ2VB",
+        "address": "珠海大道8号珠海华发商都F1层",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "购物服务;便民商店/便利店;便民商店/便利店",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/14a1fca41dd034700000003111036790?type=pic"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/5d61482a29d08479f3f099e5315d8b21"
+          }
+        ],
+        "typecode": "060200",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "华商百货(珠海华发商都店)",
+        "location": "113.513417,22.225797",
+        "id": "B0G0AKOF56"
+      }
+    ]
+  },
+  {
+    "placeId": "PL-ZH-003",
+    "path": "/v5/place/text",
+    "code": "10000",
+    "candidates": [
+      {
+        "parent": "B0FFFQ6G5D",
+        "address": "白藤九路香海彼岸50号铺",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440403",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "餐饮服务;中餐厅;中餐厅",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0J3695R83/comment/content_media_external_images_media_100008360_1733128368278_02101649.jpg"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0J3695R83/comment/content_media_external_file_30526_ss__1761878926591_20287668.jpg"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0J3695R83/comment/content_media_external_file_30527_ss__1761878926580_90253231.jpg"
+          }
+        ],
+        "typecode": "050100",
+        "adname": "斗门区",
+        "citycode": "0756",
+        "name": "展记隆江猪脚饭(时代·香海彼岸店)",
+        "location": "113.345800,22.163963",
+        "id": "B0J3695R83"
+      },
+      {
+        "parent": "",
+        "address": "湾仔街道银湾路1663号十字门华发商都B区一楼B105b号商户",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "餐饮服务;餐饮相关场所;餐饮相关",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/b3b50cfa358d4a3e0000008894874555?type=pic"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/93913a0ff182631a0000000719402508?type=pic"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/d93eb0cf8d149ab70000000719422089?type=pic"
+          }
+        ],
+        "typecode": "050000",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "柴得记不止有猪脚饭(会展中心店)",
+        "location": "113.526607,22.173968",
+        "id": "B0JR5ZVR1Z"
+      }
+    ]
+  },
+  {
+    "placeId": "PL-ZH-004",
+    "path": "/v5/place/text",
+    "code": "10000",
+    "candidates": [
+      {
+        "parent": "",
+        "address": "南屏镇北山正街北四巷9号之四商铺",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "餐饮服务;外国餐厅;日本料理",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/c811b1af77e02a2e0000002993598359?type=pic"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/d0dec8ad88817965dcecb63253233326"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/f18578ec400872230000006199970792?type=pic"
+          }
+        ],
+        "typecode": "050202",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "卷屋寿司(北山店)",
+        "location": "113.513665,22.221743",
+        "id": "B0MDRHC2CQ"
+      }
+    ]
+  },
+  {
+    "placeId": "PL-ZH-013",
+    "path": "/v5/place/text",
+    "code": "10000",
+    "candidates": [
+      {
+        "parent": "B0FFFFLAX5",
+        "address": "环岛路(长隆大道附近)富祥湾珠海长隆度假区内",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "体育休闲服务;影剧院;剧场",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://img.alicdn.com/imgextra/i1/O1CN01YhAmdM1Wdwqldq7ar_!!6000000002812-2-tps-808-816.png"
+          },
+          {
+            "title": "",
+            "url": "https://store.is.autonavi.com/showpic/55254bc5016f06ff0000002460384894?type=pic"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0FFGV5QSF/comment/2D13EAC2_4B94_4B4B_AA3D_4C4AF1F633EC_L0_001_2048_153_1762855392331_16243594.jpg"
+          }
+        ],
+        "typecode": "080603",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "长隆剧院",
+        "location": "113.543843,22.102041",
+        "id": "B0FFGV5QSF"
+      },
+      {
+        "parent": "",
+        "address": "南湾大道十字门中央商务区银湾路1663号",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "体育休闲服务;影剧院;剧场",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0FFFFWF4G/comment/24a4b5ce4ea850b0168f6bbeeece330f_2048_2048_80.jpg"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0FFFFWF4G/comment/content_media_external_file_1000053740_ss__1772892547238_45237225.jpg"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0FFFFWF4G/comment/content_media_external_file_1000053741_ss__1772892547251_61212052.jpg"
+          }
+        ],
+        "typecode": "080603",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "珠海华发中演大剧院",
+        "location": "113.526389,22.173163",
+        "id": "B0FFFFWF4G"
+      },
+      {
+        "parent": "B0FFFFLAX5",
+        "address": "富祥湾珠海长隆度假区内(长隆横琴湾酒店对面)",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "体育休闲服务;影剧院;剧场",
+        "photos": [
+          {
+            "title": "",
+            "url": "http://store.is.autonavi.com/showpic/51eafb8ea8c97ed2640d157c6536f653"
+          },
+          {
+            "title": "",
+            "url": "http://store.is.autonavi.com/showpic/905025158958a3315010a8b5cff80a76"
+          },
+          {
+            "title": "",
+            "url": "http://store.is.autonavi.com/showpic/4e9144ab896bd248b9462a47526a3764"
+          }
+        ],
+        "typecode": "080603",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "长隆卡卡剧场",
+        "location": "113.543676,22.099308",
+        "id": "B0FFFGTAXZ"
+      },
+      {
+        "parent": "",
+        "address": "琴朗道151号",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440402",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "体育休闲服务;影剧院;剧场",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0KK9HS6RG/comment/451AA1B6_05B0_4658_B410_164A9B8A55AE_L0_001_1284_134_1765358705233_78174301.jpg"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0KK9HS6RG/comment/E69507D7_AD39_414F_B9E9_9ED6F0B988A4_L0_001_1500_200_1763087371337_43202529.jpg"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0KK9HS6RG/comment/content_media_external_file_38967_ss__1765172331977_70807048.jpg"
+          }
+        ],
+        "typecode": "080603",
+        "adname": "香洲区",
+        "citycode": "0756",
+        "name": "开心麻花剧场(横琴店)",
+        "location": "113.534668,22.135982",
+        "id": "B0KK9HS6RG"
+      },
+      {
+        "parent": "",
+        "address": "金帆路与金泓路交叉口东300米",
+        "distance": "",
+        "pcode": "440000",
+        "adcode": "440404",
+        "pname": "广东省",
+        "cityname": "珠海市",
+        "type": "体育休闲服务;影剧院;剧场",
+        "photos": [
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0J0GN7KZQ/comment/29c706f7f76ca5d4ac09c4188dfde5db_2048_2048_80.jpg"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0J0GN7KZQ/comment/content_media_external_file_931_1772778032508_92151942.jpg"
+          },
+          {
+            "title": "",
+            "url": "https://aos-comment.amap.com/B0J0GN7KZQ/comment/D710C23E_F467_4DD6_88CB_D204FE4D3A81_L0_001_1500_200_1755296696308_77321617.jpg"
+          }
+        ],
+        "typecode": "080603",
+        "adname": "金湾区",
+        "citycode": "0756",
+        "name": "珠海金湾艺术中心·大剧院A馆",
+        "location": "113.362575,22.116675",
+        "id": "B0J0GN7KZQ"
+      }
+    ]
+  }
+]

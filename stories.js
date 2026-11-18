@@ -37,7 +37,9 @@ function routeStoryDraft(kind,id) {
   ids=[...new Set(ids || [])].filter(stop=>directoryPlaces.some(place=>place.id===stop && place.city===city));
   if(ids.length<2)return null;
   const stops=ids.map(stop=>{const item=directoryPlaces.find(place=>place.id===stop);return {id:stop,name:item.name,category:item.category,price:placePriceText(item)};});
-  return {...emptyStoryDraft(),city,title,category:'Travel Tips',body:'Suggested itinerary (not a trip review): '+stops.map(stop=>stop.name).join(' → ')+'.',placeIds:ids,dishes:{},route:{city,title,stops,start:kind==='recommended' && entry?.filters?.start?placeName(entry.filters.start):'BNBU',end:kind==='recommended' && entry?.filters?.end?placeName(entry.filters.end):'BNBU',capturedOn:new Date().toISOString(),cost:stopCostReferences(ids),note:'Suggested stop order. Transport times and a complete trip budget are not verified. These saved price references are not live quotes.'}};
+  const accounting=kind==='recommended'?window.BayGoBudget.summarize(data.routes.find(r=>r.route_id===id)?.budget_items || [],planningSettings(city).budget):tripAccounting(ids,city);
+  const tripBudget={min:accounting.min,max:accounting.max,status:accounting.status,missing:[...accounting.missing],currency:'CNY'};
+  return {...emptyStoryDraft(),city,title,category:'Travel Tips',body:'Suggested itinerary (not a trip review): '+stops.map(stop=>stop.name).join(' → ')+'.',placeIds:ids,dishes:{},route:{city,title,stops,start:kind==='recommended' && entry?.filters?.start?placeName(entry.filters.start):'BNBU',end:kind==='recommended' && entry?.filters?.end?placeName(entry.filters.end):'BNBU',capturedOn:new Date().toISOString(),tripBudget,cost:stopCostReferences(ids),note:'Suggested stop order. Transport times and a complete trip budget are not verified. The saved cost breakdown and personal allowances are not live quotes.'}};
 }
 function storyTagsMarkup(story) {
   return (story.placeIds || []).map(id=>link('E04',esc(placeName(id)),{id},'outline')).join('');
@@ -47,9 +49,10 @@ function storyRouteMarkup(route,allowCopy=false) {
   return heading('Shared Route Snapshot',`<article class="card stack"><h3>${esc(route.title)}</h3><p>${esc(route.start)} → ${route.stops.map(stop=>esc(stop.name)).join(' → ')} → ${esc(route.end)}</p>
     <ol>${route.stops.map(stop=>`<li>${esc(stop.name)}<p class="meta">${esc(stop.price)}</p>${link('E04','Place Details',{id:stop.id})}</li>`).join('')}</ol>
     <p class="meta">${esc(route.note)} Snapshot saved ${esc(route.capturedOn)}.</p>
+    ${route.tripBudget ? `<p><strong>${route.tripBudget.missing?.length?'Known trip subtotal':'Estimated trip total'}: ${costRange(route.tripBudget)}</strong></p>${route.tripBudget.missing?.length?`<p class="meta">Costs still to confirm: ${esc(route.tripBudget.missing.join('; '))}. This snapshot does not confirm budget feasibility.</p>`:''}<p class="meta">Includes the captured plan’s transport, meals and admission assumptions; personal allowances and prices can change. Open a new plan to recalculate.</p>` : ''}
     ${Object.entries(route.cost?.groups || {}).map(([currency,amount])=>`<p>${esc(priceMoney(amount,currency))} · known stop-cost subtotal</p>`).join('')}
     <p class="meta">${route.cost?.known || 0} of ${route.stops.length} stops have a reference. Transport, unpriced stops and extras are excluded; currencies are separate.</p>
-    ${allowCopy ? action('copy-story-route','Use These Stops in My Planner','outline',`data-id="${esc(params.get('id'))}"`)+'<p class="meta">Copies stop order into the planner, whose start/return is BNBU. Replaces this city’s selection; the previous selection is kept for undo. Snapshot timings or other endpoints are not imported.</p>' : ''}</article>`);
+    ${allowCopy ? action('copy-story-route','Use These Stops in My Planner','outline',`data-id="${esc(params.get('id'))}"`)+'<p class="meta">Copies stop order into the planner, whose start/return is BNBU. Replaces this city’s selection; the previous selection is kept for undo. Snapshot costs, timings or other endpoints are not imported.</p>' : ''}</article>`);
 }
 function storyEditor() {
   const draft=state.storyDraft || emptyStoryDraft();

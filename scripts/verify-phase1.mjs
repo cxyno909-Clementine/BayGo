@@ -4,7 +4,7 @@ import vm from 'node:vm';
 
 const root = new URL('../', import.meta.url);
 const sources = [];
-for (const name of ['config.js', 'content.js', 'places.js', 'prices.js', 'transit.js', 'curated.js', 'community.js', 'permits.js', 'travel-guides.js', 'stories.js', 'app.js']) {
+for (const name of ['config.js', 'content.js', 'places.js', 'prices.js', 'transit.js', 'curated.js', 'community.js', 'permits.js', 'travel-guides.js', 'stories.js', 'routing-snapshot.js', 'budget.js', 'route-client.js', 'trip-planning.js', 'app.js']) {
   const text = await readFile(new URL(name, root), 'utf8');
   new vm.Script(text, { filename: name });
   sources.push([name, text]);

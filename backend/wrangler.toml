@@ -1,0 +1,4 @@
+name = "baygo-route-service"
+main = "worker.mjs"
+compatibility_date = "2026-11-18"
+# Supply AMAP_API_KEY through the provider's secret store, never this file.

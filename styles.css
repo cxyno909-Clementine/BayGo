@@ -351,3 +351,9 @@ main section + section { margin-top: 24px; }
 .demo-controls { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
 .demo-controls summary { cursor: pointer; font-weight: 600; }
 #carpool-fields:not([hidden]) { display: grid; gap: 14px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+
+/* Whole-trip accounting must remain readable on a phone. */
+#trip-budget-summary .rows dd small { display: block; margin-top: .35rem; overflow-wrap: anywhere; }
+#trip-budget-summary .rows dt, #trip-budget-summary .rows dd { min-width: 0; overflow-wrap: anywhere; }
+.leg-estimate .check span { min-width: 0; overflow-wrap: anywhere; }
+.leg-estimate .check small { display: block; }

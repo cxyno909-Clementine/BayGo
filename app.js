@@ -13,8 +13,9 @@ const interests = [...new Set(data.routes.flatMap(route => route.interest_tags.s
 const fresh = () => ({ city: 'Zhuhai', filters: { mode: 'destination', returnBy: '23:30', start: campus, end: campus, interests: [] }, profile: false, verified: false, saved: {}, applications: {}, reports: [], checklist: {}, lists: {} });
 let state = fresh();
 try { state = { ...state, ...JSON.parse(localStorage.getItem(key)) }; } catch {}
-if (!state.filters.returnBy) state.filters.returnBy = '23:30';
-let page, params, entry, resizeObserver, toastTimer;
+state.filters = { ...fresh().filters, ...(state.filters || {}) };
+if (!Object.hasOwn(state.filters, 'returnBy')) state.filters.returnBy = '23:30';
+let page, params, entry, resizeObserver, toastTimer, legRequestController;
 const scrollPositions = new Map();
 const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
 const lookup = (list, id, value) => list.find(row => row[id] === value);
@@ -133,6 +134,7 @@ function show(body, footer = '', isRoot = false) {
   app.innerHTML = `<header class="topbar">${isRoot ? '<span></span>' : action('back', icon('back') + 'Back', 'back text')}
     <h1>${titles[page] || 'BayGo'}</h1>${logo}</header>
     <main tabindex="-1" ${footer ? 'class="has-footer"' : ''}>${body}</main>${footer}`;
+  cancelLegRequests();
   queueMicrotask(loadLegEstimates);
   document.title = (titles[page] || 'BayGo') + ' · BayGo';
   resizeObserver?.disconnect();
@@ -321,7 +323,7 @@ function eligibleTrips(f) {
   const related = [];
   const missing = { coverage: false, interest: false, time: false, cost: false, availability: false };
   for (const route of data.routes) {
-    if (route.city !== 'Zhuhai' || route.departure_id !== f.start || route.return_id !== f.end) continue;
+    if (route.city !== state.city || route.departure_id !== f.start || route.return_id !== f.end) continue;
     missing.coverage = true;
     const matchedTags = route.interest_tags.split(/;\s*/).filter(tag => f.interests.includes(tag));
     if (f.mode === 'destination' ? !stopsFor(route.route_id).slice(1, -1).some(stop => stop.place_id === f.destination) : !matchedTags.length) continue;
@@ -330,7 +332,8 @@ function eligibleTrips(f) {
     if (f.returnBy && route.duration_min > minutes(f.returnBy) - minutes(f.departure)) continue;
     missing.time = true;
     // Match the full listed itinerary estimate, including transport, food and admission.
-    const total = route.estimated_total_cny;
+    const summary = window.BayGoBudget.summarize(route.budget_items || [], f.budget);
+    const total = summary.missing.length ? null : {min:summary.min,max:summary.max};
     if (!total || !Number.isFinite(total.min) || !Number.isFinite(total.max) || total.min < 0 || total.max < total.min) {
       missing.cost = true;
       continue;
@@ -412,7 +415,7 @@ function tripDetails() {
       ${!isEnd && directoryPlaces.find(p => p.id === stop.place_id) ? `<p>${link('E04', 'View this stop & directions', {id: stop.place_id})}</p>` : ''}
       ${isEnd ? '' : `<div class="leg"><strong>${esc(stop.next_transport)} · ${duration(stop.move_min)} · ${stop.leg_cost_cny == null ? 'Not confirmed' : 'CNY ' + stop.leg_cost_cny}</strong><p class="meta">${esc(stop.next_leg_en)}</p></div>`}</li>`;
     }).join('')}</ol>`)}
-    ${heading('Estimated cost per person', rows((route.budget_items || []).map(item => [item.label, costRange(item)]).concat([['Estimated trip total', route.estimated_total_cny ? costRange(route.estimated_total_cny) : 'Not confirmed']])) + `<p class="meta">${esc(route.cost_note_en)}</p><details><summary>Price sources and assumptions</summary>${(route.budget_items || []).map(item => `<p><strong>${esc(item.label)}</strong>: ${esc(item.note)} ${item.source ? external(item.source,'Source') : ''}</p>`).join('')}</details>`)}
+    ${heading('Estimated cost per person', rows((route.budget_items || []).map(item => [item.label, costRange(item)]).concat([['Estimated trip total', (route.budget_items || []).length ? costRange(window.BayGoBudget.summarize(route.budget_items)) : 'Not confirmed']])) + `<p class="meta">${esc(route.cost_note_en)}</p><details><summary>Price sources and assumptions</summary>${(route.budget_items || []).map(item => `<p><strong>${esc(item.label)}</strong>: ${esc(item.note)} ${item.source ? external(item.source,'Source') : ''}</p>`).join('')}</details>`)}
     ${heading('Before you go', para(route.conditions) + visitorActions(route.route_id))}
     ${travelFromBNBU(route.destination_id, route.city)}
     <section class="cluster">${link('F01', 'Report an Issue', { kind: 'trip', id: route.route_id })}
@@ -523,7 +526,7 @@ function placePriceDetails(item) {
   return `<div class="price-reference stack"><p><strong>${esc(placePriceText(item))}</strong></p>
     <p class="meta">${esc(record.scope)}</p>${concessions}<p class="meta">${esc(record.conditions)}</p>
     <p class="meta">${esc(dates)}</p><p class="meta">Source: ${external(record.sourceUrl, record.sourceName)}</p>
-    ${record.sourcePoiName ? `<p class="meta">Matched branch: <span lang="zh">${esc(record.sourcePoiName)}</span></p>` : ''}</div>`;
+    ${record.sourcePoiName ? `<p class="meta">Matched branch: ${esc(item.name)}</p>` : ''}</div>`;
 }
 
 function stopCostReferences(ids) {
@@ -1161,6 +1164,11 @@ app.addEventListener('input', event => {
 });
 
 app.addEventListener('change', event => {
+  if(event.target.dataset.routeMode) {
+    const node=event.target,city=node.dataset.city,token=node.dataset.routeMode;
+    if(commit(()=>{state.tripLegOverrides||={};state.tripLegOverrides[city]||={};state.tripLegOverrides[city][token]={mode:node.value,fare:'',minutes:''};}))updateTripSummary();
+    return;
+  }
   if(event.target.dataset.storyPlace) {const id=event.target.dataset.storyPlace,draft=state.storyDraft;if(!draft || !directoryPlaces.some(p=>p.id===id && p.city===draft.city))return;const ok=commit(()=>{draft.placeIds=event.target.checked?[...new Set([...draft.placeIds,id])]:draft.placeIds.filter(p=>p!==id);});if(!ok)event.target.checked=state.storyDraft.placeIds.includes(id);const tray=app.querySelector('#story-tagged-places');if(tray)tray.innerHTML=storyTaggedPlaces(state.storyDraft);return;}
   if(event.target.hasAttribute?.('data-story-city')) {const draft=state.storyDraft;if(!draft)return;if(draft.placeIds.length || draft.route){event.target.value=draft.city;announce('Start a separate post to change city while keeping this draft.');return;}if(cityNames.includes(event.target.value) && commit(()=>{draft.city=event.target.value;}))refresh();return;}
   if (event.target.dataset.permitChoice) {
@@ -1204,10 +1212,12 @@ app.addEventListener('submit', event => {
   if (form.method === 'dialog') return;
   event.preventDefault();
   const fields = Object.fromEntries(new FormData(form));
-  if (storySubmit(form,fields) || communitySubmit(form,fields)) return;
+  if (planningSubmit(form,fields) || storySubmit(form,fields) || communitySubmit(form,fields)) return;
   if (form.id === 'multi-plan') {
     if ((state.customPlans?.[state.city] || []).length < 2) { announce('Choose at least two places.'); return; }
     routeTo('#P02');
+  } else if (form.id === 'curated-filter') {
+    if(commit(()=>{state.routeDiscovery||={};state.routeDiscovery[state.city]={category:fields['route-category'],budgetStatus:fields['route-budget-status']};}))refresh();
   } else if (form.id === 'planner') {
     state.filters = collectFilters(form);
     persist();
@@ -1356,22 +1366,26 @@ function crossCityJourney(id, city) {
 }
 
 function curatedRoutes() {
-  const routes = (window.BAYGO_CURATED || []).filter(r => r.city === state.city);
-  show(`<section class="stack"><p class="eyebrow">${esc(state.city)} · Ready-made routes</p><p>Follow a suggested sequence or customise the stops. Change city on Home.</p>${link('H01','Home / Change city')}${link('P01','Start Planning',{},'primary')}${state.city==='Zhuhai'?link('E01','Help me choose',{mode:'interests'},'outline'):''}</section>${state.city==='Zhuhai' ? data.routes.map(r=>routeCard(r)).join('') : ''}${routes.map(r=>{const cover=directoryPlaces.find(p=>p.id===r.stops[0]);return `<article class="card stack">${cover?directoryPhoto(cover):''}<h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><p class="meta">${r.stops.length} stops · timings and complete budget to be checked</p>${link('R02','View Route',{id:r.id},'outline')}</article>`}).join('')}`,tabbar(),true);
+  const s=planningSettings(), filter=state.routeDiscovery?.[state.city] || {category:'',budgetStatus:''};
+  const originals=data.routes.filter(r=>r.city===state.city).map(r=>({id:r.route_id,city:r.city,title:r.title_en,summary:r.summary_en,stops:stopsFor(r.route_id).map(s=>s.place_id).filter(id=>id!==campus),original:r}));
+  const candidates=[...originals,...(window.BAYGO_CURATED || []).filter(r=>r.city===state.city)];
+  const entries=candidates.map(r=>({route:r,total:r.original?window.BayGoBudget.summarize(r.original.budget_items || [],s.budget):tripAccounting(r.stops,r.city)})).filter(({route:r,total})=>(!filter.category || r.stops.some(id=>directoryPlaces.find(p=>p.id===id)?.category===filter.category)) && (!filter.budgetStatus || total.status===filter.budgetStatus));
+  const statuses={within:'Estimated full trip within budget',warning:'May exceed your budget',outside:'Estimated full trip over budget',incomplete:'Missing costs · budget cannot be confirmed','no-budget':'Enter a total trip budget to compare'};
+  show(`<section class="stack"><p class="eyebrow">${esc(state.city)} · Ready-made routes</p><p>Compare whole-trip estimates and find a route containing your preferred type of place. Missing transport or entry prices are never treated as free.</p>${link('H01','Home / Change city')}${link('P01','Start Planning',{},'primary')}</section>${settingsForm(state.city)}<form id="curated-filter" data-city="${esc(state.city)}" class="card fields">${field('route-category','Find routes including',select('route-category',[['','Any type of place'],...directoryCategories.map(c=>[c,c])],filter.category))}${field('route-budget-status','Budget comparison',select('route-budget-status',[['','Show all, including incomplete'],['within','Estimated within budget'],['warning','May exceed budget'],['outside','Over budget'],['incomplete','Costs still to confirm']],filter.budgetStatus))}${submit('Find Matching Routes')}</form>${entries.length ? entries.map(({route:r,total})=>{const cover=directoryPlaces.find(p=>p.id===r.stops[0]);return `<article class="card stack">${cover?directoryPhoto(cover):''}<h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><p><strong>${esc(statuses[total.status])}</strong></p><p>${total.missing.length?'Known subtotal: ':'Estimated trip total: '}${costRange(total)}</p><p class="meta">${r.stops.length} stops · ${r.original?'Fixed inclusions in this reference itinerary; open details for its itemised assumptions.':total.unknownTime?'Journey time incomplete':duration(total.totalMinutes)+' including stays and buffer'}${total.missing.length?' · '+total.missing.length+' costs / conversions to confirm':''}</p>${link(r.original?'E03':'R02','View Route',{id:r.id},'outline')}</article>`}).join(''):'<p>No route matches these filters. Try showing all budget states or another place category; unconfirmed trips are never labelled within budget.</p>'}`,tabbar(),true);
 }
 function legLink(from, to) {
   const a=mapPoint(from), b=mapPoint(to);
   if (!a || !b) return external(to.mapUrl,'Find the next stop in Amap');
   return external('https://uri.amap.com/navigation?'+new URLSearchParams({from:a.join(',')+','+from.name,to:b.join(',')+','+to.name,mode:'bus',src:'BayGo'}),'Check this leg in Amap');
 }
-function stopSequence(ids) {
+function stopSequence(ids, includeLegs = true) {
   const stops=ids.map(id=>directoryPlaces.find(p=>p.id===id)).filter(Boolean);
-  return `<ol class="timeline">${stops.map((p,i)=>`<li><h3>${i+1}. ${esc(p.name)}</h3>${directoryPhoto(p)}<p>${esc(p.descriptionEn)}</p>${placePriceBrief(p)}${link('E04','Place details',{id:p.id})}${i<stops.length-1?`<section class="card leg-estimate" data-from="${p.id}" data-to="${stops[i+1].id}" aria-live="polite"><p>Checking route distance and transport options…</p></section><p>${legLink(p,stops[i+1])}</p>`:''}</li>`).join('')}</ol>`;
+  return `<ol class="timeline">${stops.map((p,i)=>`<li><h3>${i+1}. ${esc(p.name)}</h3>${directoryPhoto(p)}<p>${esc(p.descriptionEn)}</p>${placePriceBrief(p)}${link('E04','Place details',{id:p.id})}${includeLegs && i<stops.length-1?`<section class="card leg-estimate" data-from="${p.id}" data-to="${stops[i+1].id}" aria-live="polite"><p>Checking route distance and transport options…</p></section><p>${legLink(p,stops[i+1])}</p>`:''}</li>`).join('')}</ol>`;
 }
 function curatedDetails() {
   const r=(window.BAYGO_CURATED||[]).find(r=>r.id===params.get('id'));
   if(!r)return unavailable();
-  show(`<section><p class="eyebrow">${esc(r.city)} · Curated route</p><h2>${esc(r.title)}</h2>${action('share-route','Share Route to Student Stories','primary',`data-kind="curated" data-id="${esc(r.id)}"`)}<p>${esc(r.summary)}</p><p class="meta">A suggested sequence, not a verified fastest route. Check opening hours, tickets, each transport leg and the return journey. Complete costs and travel times are not yet verified.</p></section>${stopSequence(r.stops)}${travelFromBNBU(r.stops[0],r.city)}${r.city===state.city?action('use-curated','Customise these stops','primary',`data-id="${r.id}"`):''}`);
+  show(`<section><p class="eyebrow">${esc(r.city)} · Curated route</p><h2>${esc(r.title)}</h2>${action('share-route','Share Route to Student Stories','primary',`data-kind="curated" data-id="${esc(r.id)}"`)}<p>${esc(r.summary)}</p><p class="meta">A suggested sequence, not a verified fastest route. Check opening hours, tickets, each transport leg and the return journey. Review the full budget and every journey stage below; missing estimates are marked to confirm.</p></section>${settingsForm(r.city)}${tripBudgetPanel(r.stops,r.city)}${admissionControls(r.stops,r.city)}${completeJourney(r.stops,r.city)}${stopSequence(r.stops,false)}${r.city===state.city?action('use-curated','Customise these stops','primary',`data-id="${r.id}"`):''}`);
 }
 function matchingPlanPlaces(query) {
   const words = String(query || '').normalize('NFKC').trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -1382,7 +1396,7 @@ function matchingPlanPlaces(query) {
 function planPlaceOptions(matches, selected) {
   return directoryCategories.map(category => {
     const list = matches.filter(item => item.category === category);
-    return list.length ? `<details open><summary>${esc(category)} · ${list.length}</summary>${list.map(item => `<label class="check"><input type="checkbox" data-plan-stop="${esc(item.id)}" ${selected.includes(item.id) ? 'checked' : ''}><span>${esc(item.name)}${item.localName && item.localName !== item.name ? `<small class="plan-local-name" lang="zh">${esc(item.localName)}</small>` : ''}<small class="plan-local-name">${esc(placePriceText(item))}</small></span></label>`).join('')}</details>` : '';
+    return list.length ? `<details open><summary>${esc(category)} · ${list.length}</summary>${list.map(item => `<label class="check"><input type="checkbox" data-plan-stop="${esc(item.id)}" ${selected.includes(item.id) ? 'checked' : ''}><span>${esc(item.name)}<small class="plan-local-name">${esc(placePriceText(item))}</small></span></label>`).join('')}</details>` : '';
   }).join('') || '<p class="meta">No places in the current directory match your search. Try another name or clear the search. Your selected places are kept.</p>';
 }
 
@@ -1410,11 +1424,12 @@ function updatePlanSearchResults() {
 function multiPlanner() {
   const query = state.planSearch?.[state.city] || '';
   const matches = matchingPlanPlaces(query);
-  show(`<section class="stack"><h2>Build a day in ${esc(state.city)}</h2><p>Select at least two places. Your selection order becomes the route order; you can reorder stops in the next step.</p><p>Start and return: BNBU. ${link('H01','Change city on Home')}</p>${link('R01','Prefer a ready-made route?')}</section>
+  show(`<section class="stack"><h2>Build a day in ${esc(state.city)}</h2><p>Select at least two places. Your selection order becomes the route order; you can reorder stops in the next step.</p><p>Start and return: BNBU. ${link('H01','Change city on Home')}</p>${link('R01','Help me choose a ready-made route')}</section>
     <section class="card fields">${field('plan-place-search', 'Find a place to add', input('plan-place-search', 'search', query, 'maxlength="100" placeholder="English or Chinese name, area or category" aria-controls="plan-search-results"'))}
     <p class="meta">Search places already in our directory. New places need verification before they can be added.</p>
     <div>${action('clear-plan-search', 'Clear Search', 'reset-link')}</div></section>
     <section class="card stack" id="plan-selected">${planSelectionSummary()}</section>
+    ${settingsForm(state.city)}
     <form id="multi-plan"><p class="meta" id="plan-search-count" role="status" aria-live="polite">${matches.length} ${matches.length === 1 ? 'place' : 'places'} found in ${esc(state.city)}</p>
     <div class="stack" id="plan-search-results">${planPlaceOptions(matches, selectedPlanIds())}</div>
     <div class="planner-submit">${submit('Build My Route')}</div></form>`,tabbar(),true);
@@ -1422,7 +1437,7 @@ function multiPlanner() {
 function multiResult() {
   const ids=selectedPlanIds();
   if(ids.length<2)return multiPlanner();
-  show(`<section>${action('share-route','Share Route to Student Stories','primary','data-kind="custom"')}${state.previousStoryPlan?action('undo-story-plan','Undo Imported Route','outline'):''}<h2>Your ${esc(state.city)} itinerary</h2><p>BNBU → ${ids.map(placeName).map(esc).join(' → ')} → BNBU</p><p class="meta">Draft in your chosen order. No claim of fastest travel or budget feasibility. Each leg opens with the correct two stops; check the full cost and return service before departure.</p>${link('P01','Edit selected places')}</section><section class="card">${ids.map((id,i)=>`<p>${i+1}. ${esc(placeName(id))} ${i?action('move-stop','Move up','text',`data-id="${id}" data-direction="-1"`):''} ${i<ids.length-1?action('move-stop','Move down','text',`data-id="${id}" data-direction="1"`):''}</p>`).join('')}</section>${stopCostPanel(ids)}${travelFromBNBU(ids[0],state.city)}${stopSequence(ids)}<section class="card"><h3>Return to BNBU</h3><p>Plan the return from the final stop. For cross-city travel, confirm the return coach or border connection separately.</p>${state.city==='Zhuhai' ? legLink(directoryPlaces.find(p=>p.id===ids.at(-1)),{name:'BNBU',amapPoint:{longitude:113.520652,latitude:22.347526}}):''}</section>`);
+  show(`<section>${action('share-route','Share Route to Student Stories','primary','data-kind="custom"')}${state.previousStoryPlan?action('undo-story-plan','Undo Imported Route','outline'):''}<h2>Your ${esc(state.city)} itinerary</h2><p>BNBU → ${ids.map(placeName).map(esc).join(' → ')} → BNBU</p><p class="meta">Your chosen stop order. Every journey stage is included in accounting; missing fares and travel times remain explicitly unconfirmed.</p>${link('P01','Edit selected places')}</section><section class="card">${ids.map((id,i)=>`<p>${i+1}. ${esc(placeName(id))} ${i?action('move-stop','Move up','text',`data-id="${id}" data-direction="-1"`):''} ${i<ids.length-1?action('move-stop','Move down','text',`data-id="${id}" data-direction="1"`):''}</p>`).join('')}</section>${settingsForm(state.city)}${tripBudgetPanel(ids,state.city)}${admissionControls(ids,state.city)}${completeJourney(ids,state.city)}${stopSequence(ids,false)}`);
 }
 
 // Keep unavailable third-party images from leaving a broken-image box.
@@ -1441,24 +1456,31 @@ function localDataSettings() {
   return `<section class="card"><h3>Settings</h3><p class="meta">Saved items and plans are stored in this browser on this device.</p>${action('open-reset','Clear saved data on this device','outline')}<dialog id="clear-local-dialog" aria-labelledby="clear-local-title"><div class="stack"><h2 id="clear-local-title">Clear this device’s saved data?</h2><p>This removes saved places and trips, custom plans, applications, reports, drafts, filters, locally published activities, posts, post drafts, conversations and the sample profile. This cannot be undone. No data on other devices is affected.</p><div class="cluster"><form method="dialog"><button class="btn outline">Keep my data</button></form>${action('reset-demo','Clear this device’s data','primary')}</div></div></dialog></section>`;
 }
 
-async function loadLegEstimates() {
-  const cards = [...app.querySelectorAll('.leg-estimate')];
-  for (const card of cards) {
-    if (!card.isConnected) return;
-    const apiBase = window.BAYGO_CONFIG?.routeApiBase;
-    if (!apiBase) {
-      card.innerHTML = '<h4>Check this leg in Amap</h4><p>This static edition does not connect to a live route service. Use the Amap link below to check transport options between these stops. Existing campus transport estimates are reference snapshots, not live updates.</p>';
-      continue;
-    }
-    try {
-      const response = await fetch(new URL('api/leg?' + new URLSearchParams({from:card.dataset.from,to:card.dataset.to}), apiBase.endsWith('/') ? apiBase : apiBase + '/').href, {signal:AbortSignal.timeout(65000)});
-      if (!response.ok) throw new Error('unavailable');
-      const data = await response.json();
-      if (!card.isConnected) return;
-      card.innerHTML = data.options.length ? `<h4>Next stop · recommended: ${esc(data.recommended)}</h4><p>${esc(data.reason)}</p>${data.options.map(o=>`<p><strong>${esc(o.mode)}</strong> · ${(o.meters/1000).toFixed(2)} km · about ${Math.ceil(o.seconds/60)} min</p>`).join('')}<p class="meta">Amap route estimates, queried ${esc(new Date(data.timestamp*1000).toLocaleTimeString('en-GB'))}. Driving time excludes taxi waiting. ${data.reference?'At least one endpoint is an address or area reference; check the entrance.':''}</p>` : '<p>No route estimate returned. Use Amap to check this leg; regional coverage may vary.</p>';
-      if(data.errors.length) card.innerHTML += `<details><summary>Some transport options unavailable</summary>${data.errors.map(e=>`<p>${esc(e.path)} · ${esc(e.code)}</p>`).join('')}</details>`;
-    } catch (_) {
-      if (card.isConnected) card.innerHTML = '<p>The route service is unavailable. Open this leg in Amap to check transport options. No live estimate has been calculated here.</p>';
-    }
-  }
+function cancelLegRequests() { legRequestController?.abort(); }
+function legEstimateHTML(result, from, to) {
+  const retry=action('retry-leg','Retry / refresh this leg','text',`data-from="${esc(from)}" data-to="${esc(to)}"`);
+  if(!result?.options?.length) return `<p>No verified route estimate is available for this pair. Use the linked map or enter your checked fare and time below; this leg remains incomplete.</p>${retry}`;
+  const city=planPoint(from)?.city || state.city;
+  const choice=state.tripLegOverrides?.[city]?.[`${from}|${to}`]?.mode || result.recommended;
+  return `<h4>Recommended: ${esc(result.recommended)}</h4><p class="meta">${esc(result.reason || 'A short walk is preferred; otherwise public transport when available. This is not a cheapest or fastest guarantee.')}</p>${result.options.map(o=>`<label class="check"><input type="radio" name="mode-${esc(from)}-${esc(to)}" data-route-mode="${esc(from+'|'+to)}" data-city="${esc(city)}" value="${esc(o.mode)}" ${o.mode===choice?'checked':''}><span><strong>${esc(o.mode)}</strong> · ${(o.meters/1000).toFixed(2)} km · about ${Math.ceil(o.seconds/60)} min · ${o.fare===null?'fare to confirm':esc(priceMoney(o.fare,o.currency || 'CNY'))}${o.lines.length?`<small>${esc(o.lines.map(n=>n.replace(/\([^)]*\)/g,'').replace(/[\u3400-\u9fff]/g,'')).filter(Boolean).join(' → ') || 'See Amap for service details')}</small>`:''}</span></label>`).join('')}<p class="meta">${result.source==='live'?'Live Amap response':'Saved Amap route estimate'}${result.timestamp?' · '+esc(new Date(result.timestamp*1000).toLocaleDateString('en-GB')):''}. Actual departure schedules and queues may differ. Changing mode clears previous manual fare/time. Driving excludes taxi waiting; taxi fare is not inferred. ${result.reference?'An endpoint is an area reference; verify the entrance.':''}</p>${result.errors.length?`<details><summary>Unavailable options</summary>${result.errors.map(e=>`<p>${esc(e.path)} · ${esc(e.code)}</p>`).join('')}</details>`:''}${retry}`;
 }
+async function loadLegEstimates() {
+  legRequestController?.abort();
+  const controller=new AbortController(); legRequestController=controller;
+  const cards=[...app.querySelectorAll('.leg-estimate')];
+  await window.BayGoRoutes.queue(cards,async card=>{
+    if(!card.isConnected || controller.signal.aborted)return;
+    try {
+      const result=await window.BayGoRoutes.get(card.dataset.from,card.dataset.to,controller.signal);
+      if(!card.isConnected || controller.signal.aborted)return;
+      card.innerHTML=legEstimateHTML(result,card.dataset.from,card.dataset.to);
+      updateTripSummary();
+    } catch(e) { if(!controller.signal.aborted && card.isConnected)card.innerHTML=legEstimateHTML(null,card.dataset.from,card.dataset.to); }
+  },controller.signal,3);
+}
+actions['retry-leg']=async button=>{
+  const controller=legRequestController || new AbortController(), card=button.closest('.leg-estimate');
+  if(!card)return;
+  card.innerHTML='<p>Checking route…</p>';
+  try {const value=await window.BayGoRoutes.get(button.dataset.from,button.dataset.to,controller.signal,true);if(card.isConnected&&!controller.signal.aborted){card.innerHTML=legEstimateHTML(value,button.dataset.from,button.dataset.to);updateTripSummary();}}catch(e){if(card.isConnected&&!controller.signal.aborted)card.innerHTML=legEstimateHTML(null,button.dataset.from,button.dataset.to);}
+};
