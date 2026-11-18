@@ -1,5 +1,5 @@
 window.BAYGO_PRICE_REFERENCES = {
-  "generatedOn": "2026-11-15",
+  "generatedOn": "2026-11-18",
   "records": {
     "P-ZH-002": {
       "placeId": "P-ZH-002",
@@ -9,17 +9,17 @@ window.BAYGO_PRICE_REFERENCES = {
       "unit": "person",
       "scope": "Food and drink average spend",
       "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
-      "sourceName": "Amap supplied historical snapshot",
+      "sourceName": "Amap place data",
       "sourceUrl": "https://uri.amap.com/marker?position=113.588081%2C22.361363&name=Bugu+Cafe&src=BayGo&coordinate=gaode",
       "sourcePoiId": "B0LA1A9NNI",
       "sourcePoiName": "Bugu Cafe·布谷咖啡",
-      "sourceCheckedOn": null,
-      "evidenceReviewedOn": "2026-11-15",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
       "sourceSnapshotFiles": [
-        "amap-verified-results.json"
+        "live-poi-query"
       ],
       "placeRecordCheckedOn": "2026-11-12",
-      "status": "historical_reference",
+      "status": "queried_reference",
       "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
     },
     "PL-ZH-002": {
@@ -30,17 +30,17 @@ window.BAYGO_PRICE_REFERENCES = {
       "unit": "person",
       "scope": "Food and drink average spend",
       "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
-      "sourceName": "Amap supplied historical snapshot",
+      "sourceName": "Amap place data",
       "sourceUrl": "https://uri.amap.com/marker?position=113.593705%2C22.358771&name=Yu+Ji+Hong+Kong+Caf%C3%A9+%C2%B7+Shanfang+Road&src=BayGo&coordinate=gaode",
       "sourcePoiId": "B0IUCZS7J3",
       "sourcePoiName": "渔记餐室(山房路店)",
-      "sourceCheckedOn": null,
-      "evidenceReviewedOn": "2026-11-15",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
       "sourceSnapshotFiles": [
-        "amap-review-results.json"
+        "live-poi-query"
       ],
       "placeRecordCheckedOn": "2026-11-12",
-      "status": "historical_reference",
+      "status": "queried_reference",
       "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
     },
     "PL-ZH-005": {
@@ -51,18 +51,17 @@ window.BAYGO_PRICE_REFERENCES = {
       "unit": "person",
       "scope": "Food and drink average spend",
       "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
-      "sourceName": "Amap supplied historical snapshot",
+      "sourceName": "Amap place data",
       "sourceUrl": "https://uri.amap.com/marker?position=113.591347%2C22.359057&name=Tangjia+Tea+Cakes&src=BayGo&coordinate=gaode",
       "sourcePoiId": "B0MU4UB5GD",
       "sourcePoiName": "唐家茶菓店",
-      "sourceCheckedOn": null,
-      "evidenceReviewedOn": "2026-11-15",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
       "sourceSnapshotFiles": [
-        "amap-review-results.json",
-        "amap-verified-results.json"
+        "live-poi-query"
       ],
       "placeRecordCheckedOn": "2026-11-12",
-      "status": "historical_reference",
+      "status": "queried_reference",
       "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
     },
     "PL-ZH-006": {
@@ -73,17 +72,17 @@ window.BAYGO_PRICE_REFERENCES = {
       "unit": "person",
       "scope": "Food and drink average spend",
       "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
-      "sourceName": "Amap supplied historical snapshot",
+      "sourceName": "Amap place data",
       "sourceUrl": "https://uri.amap.com/marker?position=113.593722%2C22.358718&name=Mingda+Hong+Kong+Caf%C3%A9&src=BayGo&coordinate=gaode",
       "sourcePoiId": "B0G36SMYIA",
       "sourcePoiName": "明达茶餐厅",
-      "sourceCheckedOn": null,
-      "evidenceReviewedOn": "2026-11-15",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
       "sourceSnapshotFiles": [
-        "amap-verified-results.json"
+        "live-poi-query"
       ],
       "placeRecordCheckedOn": "2026-11-12",
-      "status": "historical_reference",
+      "status": "queried_reference",
       "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
     },
     "PL-ZH-007": {
@@ -94,17 +93,17 @@ window.BAYGO_PRICE_REFERENCES = {
       "unit": "person",
       "scope": "Food and drink average spend",
       "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
-      "sourceName": "Amap supplied historical snapshot",
+      "sourceName": "Amap place data",
       "sourceUrl": "https://uri.amap.com/marker?position=113.644134%2C22.411188&name=Qi%E2%80%99ao+Wood-fired+Bakery&src=BayGo&coordinate=gaode",
       "sourcePoiId": "B0LRKUIHDF",
       "sourcePoiName": "淇澳窑烤面包",
-      "sourceCheckedOn": null,
-      "evidenceReviewedOn": "2026-11-15",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
       "sourceSnapshotFiles": [
-        "amap-verified-results.json"
+        "live-poi-query"
       ],
       "placeRecordCheckedOn": "2026-11-12",
-      "status": "historical_reference",
+      "status": "queried_reference",
       "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
     },
     "PL-ZH-008": {
@@ -115,17 +114,17 @@ window.BAYGO_PRICE_REFERENCES = {
       "unit": "person",
       "scope": "Food and drink average spend",
       "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
-      "sourceName": "Amap supplied historical snapshot",
+      "sourceName": "Amap place data",
       "sourceUrl": "https://uri.amap.com/marker?position=113.591300%2C22.358970&name=Tang+Ma+Dessert+Shop&src=BayGo&coordinate=gaode",
       "sourcePoiId": "B0FFGPDDB3",
       "sourcePoiName": "唐妈糖水店",
-      "sourceCheckedOn": null,
-      "evidenceReviewedOn": "2026-11-15",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
       "sourceSnapshotFiles": [
-        "amap-verified-results.json"
+        "live-poi-query"
       ],
       "placeRecordCheckedOn": "2026-11-12",
-      "status": "historical_reference",
+      "status": "queried_reference",
       "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
     },
     "PL-ZH-009": {
@@ -136,17 +135,80 @@ window.BAYGO_PRICE_REFERENCES = {
       "unit": "person",
       "scope": "Food and drink average spend",
       "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
-      "sourceName": "Amap supplied historical snapshot",
+      "sourceName": "Amap place data",
       "sourceUrl": "https://uri.amap.com/marker?position=113.547824%2C22.372835&name=Axi+Xiangqi+Fish+Noodles&src=BayGo&coordinate=gaode",
       "sourcePoiId": "B0FFH3AOTC",
       "sourcePoiName": "湘祁鱼粉",
-      "sourceCheckedOn": null,
-      "evidenceReviewedOn": "2026-11-15",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
       "sourceSnapshotFiles": [
-        "amap-verified-results.json"
+        "live-poi-query"
       ],
       "placeRecordCheckedOn": "2026-11-12",
-      "status": "historical_reference",
+      "status": "queried_reference",
+      "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
+    },
+    "PL-SZ-NEW-003": {
+      "placeId": "PL-SZ-NEW-003",
+      "kind": "average_spend",
+      "amount": 133.0,
+      "currency": "CNY",
+      "unit": "person",
+      "scope": "Food and drink average spend",
+      "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
+      "sourceName": "Amap place data",
+      "sourceUrl": "https://uri.amap.com/marker?position=114.088235%2C22.549471&name=Phoenix+House&coordinate=gaode&src=BayGo",
+      "sourcePoiId": "B02F37USFB",
+      "sourcePoiName": "凤凰楼.粤宴点心(华强北店)",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
+      "sourceSnapshotFiles": [
+        "live-poi-query"
+      ],
+      "placeRecordCheckedOn": "2026-11-12",
+      "status": "queried_reference",
+      "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
+    },
+    "PL-GZ-NEW-010": {
+      "placeId": "PL-GZ-NEW-010",
+      "kind": "average_spend",
+      "amount": 27.0,
+      "currency": "CNY",
+      "unit": "person",
+      "scope": "Food and drink average spend",
+      "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
+      "sourceName": "Amap place data",
+      "sourceUrl": "https://uri.amap.com/marker?position=113.242835%2C23.113477&name=Nanxin+Milk+Desserts&coordinate=gaode&src=BayGo",
+      "sourcePoiId": "B00140GYAI",
+      "sourcePoiName": "南信牛奶甜品专家",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
+      "sourceSnapshotFiles": [
+        "live-poi-query"
+      ],
+      "placeRecordCheckedOn": "2026-11-12",
+      "status": "queried_reference",
+      "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
+    },
+    "PL-GZ-NEW-011": {
+      "placeId": "PL-GZ-NEW-011",
+      "kind": "average_spend",
+      "amount": 24.0,
+      "currency": "CNY",
+      "unit": "person",
+      "scope": "Food and drink average spend",
+      "conditions": "Average spend is a planning reference, not a menu price, fixed package or minimum charge. Your order may cost more or less. Transport and shopping are excluded.",
+      "sourceName": "Amap place data",
+      "sourceUrl": "https://uri.amap.com/marker?position=113.244409%2C23.123774&name=Yinji+Rice+Noodle+Rolls+%C2%B7+Wenchang+North+Road&coordinate=gaode&src=BayGo",
+      "sourcePoiId": "B0FFFPKJL5",
+      "sourcePoiName": "银记肠粉(文昌北路店)",
+      "sourceCheckedOn": "2026-11-18",
+      "evidenceReviewedOn": "2026-11-18",
+      "sourceSnapshotFiles": [
+        "live-poi-query"
+      ],
+      "placeRecordCheckedOn": "2026-11-12",
+      "status": "queried_reference",
       "documentationUrl": "https://lbs.amap.com/api/webservice/guide/api-advanced/newpoisearch"
     },
     "PL-ZH-017": {

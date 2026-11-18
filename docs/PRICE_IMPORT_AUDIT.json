@@ -1,13 +1,10 @@
 {
-  "reviewedOn": "2026-11-15",
-  "mode": "supplied_snapshots",
+  "reviewedOn": "2026-11-18",
+  "mode": "live",
   "placeCount": 85,
-  "foodReferenceCount": 7,
+  "foodReferenceCount": 10,
   "officialReferenceCount": 4,
-  "sourceSha256": {
-    "amap-verified-results.json": "3d957603a77a0f66121b100650fe9c92f8a2b9c01f0191e720fd7eb2e148dee5",
-    "amap-review-results.json": "4b478afc39b7ddaa6a7ffb34aff58238f88d72227a4cec28b1cba357ea50b0ce"
-  },
+  "sourceSha256": {},
   "places": [
     {
       "placeId": "P-ZH-002",
@@ -468,8 +465,8 @@
     {
       "placeId": "PL-SZ-NEW-003",
       "name": "Phoenix House · Huaqiangbei",
-      "foodPriceImported": false,
-      "reason": "no positive average-spend value for the exact POI"
+      "foodPriceImported": true,
+      "reason": null
     },
     {
       "placeId": "PL-HK-NEW-004",
@@ -510,14 +507,14 @@
     {
       "placeId": "PL-GZ-NEW-010",
       "name": "Nanxin Milk Desserts",
-      "foodPriceImported": false,
-      "reason": "no positive average-spend value for the exact POI"
+      "foodPriceImported": true,
+      "reason": null
     },
     {
       "placeId": "PL-GZ-NEW-011",
       "name": "Yinji Rice Noodle Rolls · Wenchang North Road",
-      "foodPriceImported": false,
-      "reason": "no positive average-spend value for the exact POI"
+      "foodPriceImported": true,
+      "reason": null
     }
   ]
 }

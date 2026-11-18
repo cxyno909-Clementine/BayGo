@@ -67,15 +67,15 @@ function tripAccounting(ids, city) {
 function tripBudgetPanel(ids, city) {
   const total = tripAccounting(ids, city);
   const money = item => item.cny ? costRange(item.cny) : 'To confirm';
-  const statuses = { within: 'Estimated full trip within budget', warning: 'May exceed your budget', outside: 'Estimated full trip over budget', incomplete: 'Incomplete estimate · costs still to confirm', 'no-budget': 'Enter a total trip budget to compare' };
+  const statuses = { within: 'Estimated full trip within budget', warning: 'May exceed your budget', outside: 'Estimated full trip over budget', incomplete: 'Incomplete estimate · costs still to confirm', 'no-budget': 'Estimated whole-trip cost and time' };
   const incomplete = total.status === 'incomplete';
   const time = total.unknownTime ? `At least ${duration(total.totalMinutes)} accounted for; travel times are missing. Return time cannot be confirmed.` : `${duration(total.totalMinutes)} including travel, ${ids.length} stop allowances and your extra buffer.`;
   const finish = minutes(total.settings.departure) + total.totalMinutes;
   const timingStatus = total.unknownTime ? '' : finish >= 1440 ? ' This plan crosses midnight; same-day planning cannot confirm it.' : ` Estimated return ${clock(finish)}.${total.settings.returnBy && finish > minutes(total.settings.returnBy) ? ' This is after your return-by time.' : ''}`;
-  return heading('Whole-trip budget & time', `<div id="trip-budget-summary" data-city="${esc(city)}" data-ids="${esc(ids.join(','))}" class="card stack"><h3>${esc(statuses[total.status])}</h3><p><strong>${incomplete ? 'Known subtotal only: ' : 'Estimated trip total: '}${costRange(total)}</strong></p>${total.remaining && !incomplete ? `<p>Budget balance: CNY ${total.remaining.min} to ${total.remaining.max} / person (negative means over budget).</p>` : ''}${total.missing.length ? `<p class="error">Missing costs or currency conversions: ${esc(total.missing.join('; '))}. These are not treated as free. Budget feasibility cannot be confirmed.</p>` : ''}${rows(total.details.map(i => [esc(i.label),money(i)+`<small class="meta">${i.currency !== 'CNY' && i.min !== null ? esc(`${i.currency} ${i.min}`) + ' · ' : ''}${esc(i.note || '')}${i.source ? ' '+external(i.source,'Source') : ''}</small>`]))}<p>${esc(time + timingStatus)}</p><p class="meta">Shopping, optional attractions, concerts and unselected extras excluded. Food allowances are not guaranteed prices. Selected restaurant visits: ${total.meals}; cafe / snack visits: ${total.drinks}. These are counted once even if below the requested meal count.</p>${Object.keys(total.fx).length ? `<p class="meta">Conversion assumption: 1 HKD = CNY ${esc(total.fx.HKD || 'not set')}; 1 MOP = CNY ${esc(total.fx.MOP || 'not set')}. ${esc(total.settings.fxDate)} · ${esc(total.settings.fxSource)}</p>` : ''}</div>`);
+  return heading('Whole-trip budget & time', `<div id="trip-budget-summary" data-city="${esc(city)}" data-ids="${esc(ids.join(','))}" class="card stack"><h3>${esc(statuses[total.status])}</h3><p><strong>Time: ${total.unknownTime ? 'Incomplete · known time ' : 'Estimated total '}${esc(duration(total.totalMinutes))}</strong></p><p class="meta">Includes outbound, travel between stops, return to BNBU, ${esc(total.settings.stayMinutes)} minutes at each stop and ${esc(total.settings.bufferMinutes)} minutes of extra buffer. Missing journey times are not treated as zero.</p><p><strong>${incomplete ? 'Known subtotal only: ' : 'Estimated trip total: '}${costRange(total)}</strong></p>${total.remaining && !incomplete ? `<p>Budget balance: CNY ${total.remaining.min} to ${total.remaining.max} / person (negative means over budget).</p>` : ''}${total.missing.length ? `<p class="error">Missing costs or currency conversions: ${esc(total.missing.join('; '))}. These are not treated as free. Budget feasibility cannot be confirmed.</p>` : ''}${rows(total.details.map(i => [esc(i.label),money(i)+`<small class="meta">${i.currency !== 'CNY' && i.min !== null ? esc(`${i.currency} ${i.min}`) + ' · ' : ''}${esc(i.note || '')}${i.source ? ' '+external(i.source,'Source') : ''}</small>`]))}<p>${esc(time + timingStatus)}</p><p class="meta">Shopping, optional attractions, concerts and unselected extras excluded. Food allowances are not guaranteed prices. Selected restaurant visits: ${total.meals}; cafe / snack visits: ${total.drinks}. These are counted once even if below the requested meal count.</p>${Object.keys(total.fx).length ? `<p class="meta">Conversion assumption: 1 HKD = CNY ${esc(total.fx.HKD || 'not set')}; 1 MOP = CNY ${esc(total.fx.MOP || 'not set')}. ${esc(total.settings.fxDate)} · ${esc(total.settings.fxSource)}</p>` : ''}</div>`);
 }
-function completeJourney(ids, city) {
-  return heading('Every journey stage · including return',tripLegs(ids,city).map(leg => {
+function completeJourney(ids, city, endpointsOnly = false) {
+  return heading('Every journey stage · including return',tripLegs(ids,city).filter(leg => !endpointsOnly || leg.from === campus || leg.to === campus).map(leg => {
     const a=planPoint(leg.from), b=planPoint(leg.to), saved=state.tripLegOverrides?.[city]?.[leg.token] || {};
     const guidance = city === 'Shenzhen' ? 'BNBU connection → ticketed AA Bus pickup → ticketed Shenzhen drop-off → destination. Return: book the reverse service and include the final campus connection.' : city === 'Guangzhou' ? 'BNBU → departure station / ticketed coach pickup → Guangzhou arrival → destination. Return: reverse these stages and include the campus connection.' : city === 'Hong Kong' ? 'BNBU → HZMB Zhuhai Port → departure checks → bridge shuttle → Hong Kong Port checks → local bus / MTR → destination. Return: include every stage in reverse; check last services.' : 'BNBU → Gongbei / Hengqin Port → border checks → Macao local bus / LRT / taxi → destination. Return: include the matching border and campus connection.';
     return `<article class="card stack"><h3>${esc(placeName(leg.from))} → ${esc(placeName(leg.to))}</h3>${leg.crossCity ? `<p>${esc(guidance)}</p>${link('L03','Booking and border connection guides')}<p class="meta">Actual sold stops, departures, border hours, fares and queues must be confirmed for your date. A local navigation estimate cannot represent the entire cross-city journey.</p>` : `<div class="leg-estimate" data-from="${esc(leg.from)}" data-to="${esc(leg.to)}" aria-live="polite">Checking transport options…</div>${a && b ? legLink(a,b) : ''}`}
@@ -90,6 +90,8 @@ function admissionControls(ids,city) {
   }).join('');
 }
 function updateTripSummary() {
+  const compact=app.querySelector('#simple-trip-summary');
+  if(compact){const holder=document.createElement('div');holder.innerHTML=simpleTripSummary(compact.dataset.ids.split(','),compact.dataset.city);compact.replaceWith(holder.firstElementChild);}
   const node=app.querySelector('#trip-budget-summary');
   if(node) { const holder=document.createElement('div'); holder.innerHTML=tripBudgetPanel(node.dataset.ids.split(','),node.dataset.city); node.replaceWith(holder.querySelector('#trip-budget-summary')); }
 }
@@ -116,4 +118,33 @@ function planningSubmit(form, fields) {
     if(commit(()=>{state.tripStopOverrides||={};state.tripStopOverrides[city]||={};state.tripStopOverrides[city][form.dataset.entry]={visit:fields.visit,fare:fields.fare};}))refresh();return true;
   }
   return false;
+}
+
+// Indicative planning assumptions, not verified fares or menu prices.
+function simpleTripSummary(ids, city) {
+  const cityFactor = {Zhuhai:1,Guangzhou:1.1,Shenzhen:1.2,'Hong Kong':1.8,Macao:1.6}[city] || 1;
+  const rates = {CNY:1,HKD:0.92,MOP:0.90}; // Rounded planning conversions only.
+  const defaults = {'Restaurants':45,'Cafes & Desserts':25,'Parks & Sights':20,'Historic Districts':0,'Museums':30,'Shopping':0,'Music & Shows':150,'Sports':60};
+  const stays = {'Restaurants':60,'Cafes & Desserts':40,'Parks & Sights':90,'Historic Districts':90,'Museums':90,'Shopping':60,'Music & Shows':120,'Sports':90};
+  let spend=0, time=20, meals=0;
+  for(const id of ids){
+    const p=planPoint(id);if(!p)continue;
+    const record=priceReferenceRecord(p);
+    const peers=directoryPlaces.filter(q=>q.city===city&&q.category===p.category).map(priceReferenceRecord).filter(Boolean).map(q=>q.amount*(rates[q.currency]||1)).sort((a,b)=>a-b);
+    spend+=record?record.amount*(rates[record.currency]||1):peers.length?peers[Math.floor(peers.length/2)]:(defaults[p.category]??40)*cityFactor;
+    time+=stays[p.category]||60;
+    if(p.category==='Restaurants')meals++;
+  }
+  for(const leg of tripLegs(ids,city)){
+    if(leg.crossCity){const ref={Guangzhou:[90,180],Shenzhen:[65,180],'Hong Kong':[150,240],Macao:[35,150]}[city]||[80,180];spend+=ref[0];time+=ref[1];continue;}
+    const result=window.BayGoRoutes.peek(leg.from,leg.to);
+    const choice=result?.recommended;
+    const option=result?.options?.find(o=>o.mode===choice);
+    if(option){time+=option.seconds/60;spend+=Number.isFinite(option.fare)?option.fare*(rates[option.currency]||1):option.mode==='Walking'?0:option.mode==='Driving / taxi'?Math.max(12,option.meters/1000*3)*cityFactor:6*cityFactor;}
+    else {time+=leg.from===campus||leg.to===campus?60:30;spend+=8*cityFactor;}
+  }
+  // Add a meal allowance only when a longer itinerary has no restaurant stop.
+  if(time>=240&&!meals){spend+=45*cityFactor;time+=45;}
+  const low=Math.max(0,Math.floor(spend*.85/5)*5),high=Math.ceil(spend*1.2/5)*5;
+  return `<section id="simple-trip-summary" class="card" data-city="${esc(city)}" data-ids="${esc(ids.join(','))}"><p><strong>Estimated total time:</strong> ${duration(Math.max(15,Math.floor(time*.85/15)*15))}–${duration(Math.ceil(time*1.2/15)*15)} · including travel, stops and return</p><p><strong>Estimated total cost:</strong> CNY ${low}–${high} / person · indicative, including food, admission and transport</p></section>`;
 }

@@ -1,11 +1,10 @@
-/* Deploy independently of GitHub Pages. AMAP_API_KEY is a runtime secret only. */
 import points from './points.json' with { type: 'json' };
-const allowedOrigin = 'https://cxyno909-clementine.github.io';
+const allowedOrigins = new Set(['https://cxyno909-clementine.github.io','https://baygo-student-travel.annualacorn5.chatgpt.site','http://127.0.0.1:8765','http://localhost:8765']);
 const cities = { Zhuhai:'440400', Guangzhou:'440100', Shenzhen:'440300', 'Hong Kong':'810000', Macao:'820000' };
-const pending = new Map(), limits = new Map();
+const pending = new Map(), limits = new Map(), routeCache = new Map();
 function number(v) { return v !== '' && v !== null && v !== undefined && Number.isFinite(Number(v)) ? Number(v) : null; }
 function coord(p) { const q=p.amapPoint; return `${q.entranceLongitude || q.longitude},${q.entranceLatitude || q.latitude}`; }
-function headers(origin) { return { 'Content-Type':'application/json; charset=utf-8', ...(origin===allowedOrigin?{'Access-Control-Allow-Origin':origin,'Vary':'Origin'}:{}), 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' }; }
+function headers(origin) { return { 'Content-Type':'application/json; charset=utf-8', ...(allowedOrigins.has(origin)?{'Access-Control-Allow-Origin':origin,'Vary':'Origin'}:{}), 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' }; }
 async function route(a,b,env) {
   const errors=[], options=[];
   for(const [mode,suffix] of [['Walking','walking'],['Public transport','transit/integrated'],['Driving / taxi','driving']]) {
@@ -33,7 +32,7 @@ async function route(a,b,env) {
 export default {
   async fetch(request,env,ctx) {
     const origin=request.headers.get('Origin'), h=headers(origin), reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:h});
-    if(origin && origin!==allowedOrigin)return reply({error:'ORIGIN_NOT_ALLOWED'},403);
+    if(origin && !allowedOrigins.has(origin))return reply({error:'ORIGIN_NOT_ALLOWED'},403);
     if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...h,'Access-Control-Allow-Methods':'GET, OPTIONS'}});
     if(request.method!=='GET')return reply({error:'METHOD_NOT_ALLOWED'},405);
     const url=new URL(request.url);
@@ -47,11 +46,11 @@ export default {
     if(limits.get(token)>30)return reply({error:'RATE_LIMIT'},429);
     if(!env.AMAP_API_KEY)return reply({error:'MISSING_SERVER_SECRET'},503);
     const cacheKey=new Request(new URL(`/cached/${a.id}/${b.id}`,url.origin));
-    const hit=await caches.default.match(cacheKey);if(hit)return new Response(hit.body,{headers:h});
+    const hit=routeCache.get(cacheKey.url);if(hit && Date.now()-hit.at<900000)return reply(hit.value);
     const pair=a.id+'|'+b.id;
     if(!pending.has(pair))pending.set(pair,route(a,b,env).finally(()=>pending.delete(pair)));
     const result=await pending.get(pair);
-    if(result.options.length)ctx.waitUntil(caches.default.put(cacheKey,new Response(JSON.stringify(result),{headers:{'Cache-Control':'public, max-age=900'}})));
+    if(result.options.length){if(routeCache.size>500)routeCache.clear();routeCache.set(cacheKey.url,{at:Date.now(),value:result});}
     return reply(result);
   }
 };

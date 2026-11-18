@@ -26,7 +26,7 @@ const duration = min => `${Math.floor(min / 60) ? Math.floor(min / 60) + ' hr ' 
 const today = () => new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const minutes = time => { const [hour, minute] = time.split(':').map(Number); return hour * 60 + minute; };
 const clock = min => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
-const titles = { R01:'Recommended Routes', R02:'Route Details', P01:'Start Planning', P02:'Your Multi-stop Plan', H01: 'Home', C01: 'Choose a City', C02: 'Home', E01: 'Plan a Trip', E02: 'Suggested Trips', E03: 'Trip Details', E04: 'Place Details', D01: 'Explore Places', L01: 'Life Guides', L03: 'Intercity Travel & Tickets', L02: 'Guide Details', Q01: 'Community', Q02: 'Buddy Activity', Q03: 'Apply to Join', Q04: 'Student Story', Q05: 'Find or Create', Q06: 'Matching Activities', Q07: 'Write a Post', Q08: 'Preview Post', Q09: 'Choose a Draft', M07: 'My Posts', M04: 'Inbox', M05: 'Conversation', M06: 'My Activities', M01: 'Me', M02: 'Saved Items', M03: 'My Applications', A01: 'Sample Sign-in', A02: 'Simulated Campus Verification', F01: 'Report an Issue', I01: 'About BayGo' };
+const titles = { R01:'Recommended Routes', R02:'Route Details', P01:'Start Planning', P02:'Your Multi-stop Plan', H01: 'Home', C01: 'Choose a City', C02: 'Home', E01: 'Plan My Trip', E02: 'Suggested Trips', E03: 'Trip Details', E04: 'Place Details', D01: 'Explore Places', L01: 'Life Guides', L03: 'Intercity Travel & Tickets', L02: 'Guide Details', Q01: 'Community', Q02: 'Buddy Activity', Q03: 'Apply to Join', Q04: 'Student Story', Q05: 'Find or Create', Q06: 'Matching Activities', Q07: 'Write a Post', Q08: 'Preview Post', Q09: 'Choose a Draft', M07: 'My Posts', M04: 'Inbox', M05: 'Conversation', M06: 'My Activities', M01: 'Me', M02: 'Saved Items', M03: 'My Applications', A01: 'Sample Sign-in', A02: 'Simulated Campus Verification', F01: 'Report an Issue', I01: 'About BayGo' };
 const tabs = [['H01','Home','home'],['E01','Explore','compass'],['L01','Life','book'],['Q01','Community','people'],['M01','Me','person']];
 const icons = {
   home: 'M3 10 12 3l9 7v10H3z M9 20v-6h6v6', compass: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M16 8l-2 6-6 2 2-6z',
@@ -215,7 +215,7 @@ function home(city = state.city) {
 function cities() {
   const cityParams = params;
   const [origin, query] = (entry.cityOrigin || '#H01').slice(1).split('?');
-  const backgrounds = { H01: home, C02: cityHome, E01: planner, L01: life, Q01: community };
+  const backgrounds = { H01: home, C02: cityHome, E01: multiPlanner, L01: life, Q01: community };
   page = Object.hasOwn(backgrounds, origin) ? origin : 'H01';
   params = new URLSearchParams(query);
   backgrounds[page]();
@@ -890,7 +890,7 @@ function unavailable() {
   show(notice('This item is unavailable', 'It may have moved or is currently unavailable.', `<div class="cluster">${action('back', 'Back', 'outline')}${link('H01', 'Home', {}, 'primary')}</div>`));
 }
 
-const screens = { H01: home, C01: cities, C02: cityHome, R01: curatedRoutes, R02: curatedDetails, P01: multiPlanner, P02: multiResult, E01: planner, E02: results, E03: tripDetails, E04: placeDetails, D01: directory, L01: life, L02: guideDetails, L03: intercityHub, Q01: community, Q02: activityDetails, Q03: applicationForm, Q04: storyDetails, Q05: communityFind, Q06: communityMatches, Q07: storyEditor, Q08: storyPreview, Q09: storyDraftConflict, M07: myPosts, M04: communityInbox, M05: communityConversation, M06: myActivities, M01: me, M02: savedItems, M03: applications, A01: auth, A02: auth, F01: report, I01: about };
+const screens = { H01: home, C01: cities, C02: cityHome, R01: curatedRoutes, R02: curatedDetails, P01: multiPlanner, P02: multiResult, E01: multiPlanner, E02: results, E03: tripDetails, E04: placeDetails, D01: directory, L01: life, L02: guideDetails, L03: intercityHub, Q01: community, Q02: activityDetails, Q03: applicationForm, Q04: storyDetails, Q05: communityFind, Q06: communityMatches, Q07: storyEditor, Q08: storyPreview, Q09: storyDraftConflict, M07: myPosts, M04: communityInbox, M05: communityConversation, M06: myActivities, M01: me, M02: savedItems, M03: applications, A01: auth, A02: auth, F01: report, I01: about };
 
 function render({ restore = false, focus = true } = {}) {
   const [target, query] = location.hash.slice(1).split('?');
@@ -1396,7 +1396,7 @@ function matchingPlanPlaces(query) {
 function planPlaceOptions(matches, selected) {
   return directoryCategories.map(category => {
     const list = matches.filter(item => item.category === category);
-    return list.length ? `<details open><summary>${esc(category)} · ${list.length}</summary>${list.map(item => `<label class="check"><input type="checkbox" data-plan-stop="${esc(item.id)}" ${selected.includes(item.id) ? 'checked' : ''}><span>${esc(item.name)}<small class="plan-local-name">${esc(placePriceText(item))}</small></span></label>`).join('')}</details>` : '';
+    return list.length ? `<details open><summary>${esc(category)} · ${list.length}</summary>${list.map(item => `<label class="check"><input type="checkbox" data-plan-stop="${esc(item.id)}" ${selected.includes(item.id) ? 'checked' : ''}><span>${esc(item.name + (item.localName ? ' (' + item.localName + ')' : ''))}<small class="plan-local-name">${esc(placePriceText(item))}</small></span></label>`).join('')}</details>` : '';
   }).join('') || '<p class="meta">No places in the current directory match your search. Try another name or clear the search. Your selected places are kept.</p>';
 }
 
@@ -1424,20 +1424,20 @@ function updatePlanSearchResults() {
 function multiPlanner() {
   const query = state.planSearch?.[state.city] || '';
   const matches = matchingPlanPlaces(query);
-  show(`<section class="stack"><h2>Build a day in ${esc(state.city)}</h2><p>Select at least two places. Your selection order becomes the route order; you can reorder stops in the next step.</p><p>Start and return: BNBU. ${link('H01','Change city on Home')}</p>${link('R01','Help me choose a ready-made route')}</section>
+  show(`<section class="stack"><h2>Build a day in ${esc(state.city)}</h2><p>Select at least two places. Your selection order becomes the route order; you can reorder stops in the next step.</p><p>Start and return: BNBU. ${link('H01','Change city on Home')}</p>${link('R01','Prefer a ready-made route?',{},'outline')}</section>
     <section class="card fields">${field('plan-place-search', 'Find a place to add', input('plan-place-search', 'search', query, 'maxlength="100" placeholder="English or Chinese name, area or category" aria-controls="plan-search-results"'))}
     <p class="meta">Search places already in our directory. New places need verification before they can be added.</p>
     <div>${action('clear-plan-search', 'Clear Search', 'reset-link')}</div></section>
     <section class="card stack" id="plan-selected">${planSelectionSummary()}</section>
-    ${settingsForm(state.city)}
+    
     <form id="multi-plan"><p class="meta" id="plan-search-count" role="status" aria-live="polite">${matches.length} ${matches.length === 1 ? 'place' : 'places'} found in ${esc(state.city)}</p>
     <div class="stack" id="plan-search-results">${planPlaceOptions(matches, selectedPlanIds())}</div>
     <div class="planner-submit">${submit('Build My Route')}</div></form>`,tabbar(),true);
 }
 function multiResult() {
-  const ids=selectedPlanIds();
+  const ids=(state.customPlans?.[state.city]||[]).filter(id=>directoryPlaces.some(p=>p.id===id&&p.city===state.city));
   if(ids.length<2)return multiPlanner();
-  show(`<section>${action('share-route','Share Route to Student Stories','primary','data-kind="custom"')}${state.previousStoryPlan?action('undo-story-plan','Undo Imported Route','outline'):''}<h2>Your ${esc(state.city)} itinerary</h2><p>BNBU → ${ids.map(placeName).map(esc).join(' → ')} → BNBU</p><p class="meta">Your chosen stop order. Every journey stage is included in accounting; missing fares and travel times remain explicitly unconfirmed.</p>${link('P01','Edit selected places')}</section><section class="card">${ids.map((id,i)=>`<p>${i+1}. ${esc(placeName(id))} ${i?action('move-stop','Move up','text',`data-id="${id}" data-direction="-1"`):''} ${i<ids.length-1?action('move-stop','Move down','text',`data-id="${id}" data-direction="1"`):''}</p>`).join('')}</section>${settingsForm(state.city)}${tripBudgetPanel(ids,state.city)}${admissionControls(ids,state.city)}${completeJourney(ids,state.city)}${stopSequence(ids,false)}`);
+  show(`<section><h2>Your ${esc(state.city)} itinerary</h2><p>BNBU → ${ids.map(placeName).map(esc).join(' → ')} → BNBU</p><p class="meta">Draft in your chosen order. No claim of fastest travel or budget feasibility. Each leg opens with the correct two stops; check the full cost and return service before departure.</p>${link('P01','Edit selected places')}</section><section class="card">${ids.map((id,i)=>`<p>${i+1}. ${esc(placeName(id))} ${i?action('move-stop','Move up','text',`data-id="${id}" data-direction="-1"`):''} ${i<ids.length-1?action('move-stop','Move down','text',`data-id="${id}" data-direction="1"`):''}</p>`).join('')}</section>${simpleTripSummary(ids,state.city)}${state.city==='Zhuhai'?tripLegs(ids,state.city).filter(l=>l.from===campus||l.to===campus).map(l=>`<div hidden class="leg-estimate" data-from="${esc(l.from)}" data-to="${esc(l.to)}"></div>`).join(''):''}${travelFromBNBU(ids[0],state.city)}${stopSequence(ids)}<section class="card"><h3>Return to BNBU</h3><p>Plan the return from the final stop. For cross-city travel, confirm the return coach or border connection separately.</p>${state.city==='Zhuhai' ? legLink(directoryPlaces.find(p=>p.id===ids.at(-1)),{name:'BNBU',amapPoint:{longitude:113.520652,latitude:22.347526}}):''}</section>`);
 }
 
 // Keep unavailable third-party images from leaving a broken-image box.
@@ -1457,12 +1457,21 @@ function localDataSettings() {
 }
 
 function cancelLegRequests() { legRequestController?.abort(); }
+function readableTransitLine(name) {
+  const original=String(name || '').trim();
+  const base=original.split(/[（(]/)[0].trim();
+  const metro=/(?:地铁|地鐵|metro|subway)/i.test(base);
+  const code=base.match(/[A-Za-z]*\d+[A-Za-z]*/)?.[0];
+  if(code) return metro ? `Metro Line ${code}` : `Bus ${code}`;
+  // Preserve a named service rather than stripping it into unreadable fragments.
+  return base ? base + ' (see Amap)' : '';
+}
 function legEstimateHTML(result, from, to) {
   const retry=action('retry-leg','Retry / refresh this leg','text',`data-from="${esc(from)}" data-to="${esc(to)}"`);
-  if(!result?.options?.length) return `<p>No verified route estimate is available for this pair. Use the linked map or enter your checked fare and time below; this leg remains incomplete.</p>${retry}`;
+  if(!result?.options?.length) return `<p>Route information could not be loaded. Retry this leg or open Amap for directions.</p>${retry}`;
   const city=planPoint(from)?.city || state.city;
   const choice=state.tripLegOverrides?.[city]?.[`${from}|${to}`]?.mode || result.recommended;
-  return `<h4>Recommended: ${esc(result.recommended)}</h4><p class="meta">${esc(result.reason || 'A short walk is preferred; otherwise public transport when available. This is not a cheapest or fastest guarantee.')}</p>${result.options.map(o=>`<label class="check"><input type="radio" name="mode-${esc(from)}-${esc(to)}" data-route-mode="${esc(from+'|'+to)}" data-city="${esc(city)}" value="${esc(o.mode)}" ${o.mode===choice?'checked':''}><span><strong>${esc(o.mode)}</strong> · ${(o.meters/1000).toFixed(2)} km · about ${Math.ceil(o.seconds/60)} min · ${o.fare===null?'fare to confirm':esc(priceMoney(o.fare,o.currency || 'CNY'))}${o.lines.length?`<small>${esc(o.lines.map(n=>n.replace(/\([^)]*\)/g,'').replace(/[\u3400-\u9fff]/g,'')).filter(Boolean).join(' → ') || 'See Amap for service details')}</small>`:''}</span></label>`).join('')}<p class="meta">${result.source==='live'?'Live Amap response':'Saved Amap route estimate'}${result.timestamp?' · '+esc(new Date(result.timestamp*1000).toLocaleDateString('en-GB')):''}. Actual departure schedules and queues may differ. Changing mode clears previous manual fare/time. Driving excludes taxi waiting; taxi fare is not inferred. ${result.reference?'An endpoint is an area reference; verify the entrance.':''}</p>${result.errors.length?`<details><summary>Unavailable options</summary>${result.errors.map(e=>`<p>${esc(e.path)} · ${esc(e.code)}</p>`).join('')}</details>`:''}${retry}`;
+  return `<h4>Recommended: ${esc(result.recommended)}</h4><p class="meta">${esc(result.reason || 'A short walk is preferred; otherwise public transport when available. This is not a cheapest or fastest guarantee.')}</p>${result.options.map(o=>`<p><strong>${esc(o.mode)}</strong> · ${(o.meters/1000).toFixed(2)} km · about ${Math.ceil(o.seconds/60)} min · ${o.fare===null?'fare to confirm':esc(priceMoney(o.fare,o.currency || 'CNY'))}${o.lines.length?`<small>Take: ${esc(o.lines.map(readableTransitLine).filter(Boolean).join(' → ') || 'See Amap for service details')}</small>`:''}</p>`).join('')}${result.errors.length?`<details><summary>Unavailable options</summary>${result.errors.map(e=>`<p>${esc(e.path)} · ${esc(e.code)}</p>`).join('')}</details>`:''}${retry}`;
 }
 async function loadLegEstimates() {
   legRequestController?.abort();

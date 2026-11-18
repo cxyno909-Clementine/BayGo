@@ -357,3 +357,6 @@ main section + section { margin-top: 24px; }
 #trip-budget-summary .rows dt, #trip-budget-summary .rows dd { min-width: 0; overflow-wrap: anywhere; }
 .leg-estimate .check span { min-width: 0; overflow-wrap: anywhere; }
 .leg-estimate .check small { display: block; }
+
+/* Visible per-person price references on place cards. */
+.directory-card .price-brief { background: #fff; border: 1px solid #cbdff3; border-radius: 12px; padding: 10px 12px; color: #20446f; font-weight: 700; }

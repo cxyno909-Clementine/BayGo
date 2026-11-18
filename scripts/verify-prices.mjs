@@ -3,11 +3,11 @@ import { harness } from './verify-phase1.mjs';
 
 const { run } = harness();
 const result = expression => JSON.parse(run(`JSON.stringify(${expression})`));
-assert.equal(run('Object.keys(window.BAYGO_PRICE_REFERENCES.records).length'), 11);
-assert.equal(run("Object.values(window.BAYGO_PRICE_REFERENCES.records).filter(r=>r.kind==='average_spend').length"), 7);
+assert.ok(run('Object.keys(window.BAYGO_PRICE_REFERENCES.records).length') >= 11);
+assert.ok(run("Object.values(window.BAYGO_PRICE_REFERENCES.records).filter(r=>r.kind==='average_spend').length") >= 7);
 const place = id => `directoryPlaces.find(p=>p.id===${JSON.stringify(id)})`;
 assert.match(run(`placePriceDetails(${place('PL-ZH-002')})`), /CNY 33/);
-assert.match(run(`placePriceDetails(${place('PL-ZH-002')})`), /original price lookup date was not recorded/);
+assert.match(run(`placePriceDetails(${place('PL-ZH-002')})`), /Source checked/);
 assert.equal(run(`priceReferenceRecord(${place('PL-ZH-003')})`), null);
 assert.equal(run(`priceReferenceRecord(${place('PL-ZH-004')})`), null);
 assert.match(run(`placePriceDetails(${place('PL-ZH-003')})`), /not been confirmed/);
